@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { dbService } from '../services/dbService';
-import { CargoStatus, User } from '../types';
+import { CargoStatus, User, Shipment } from '../types';
 
 const BookingForm: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -14,10 +14,16 @@ const BookingForm: React.FC = () => {
     weight: ''
   });
   const [successId, setSuccessId] = useState<string | null>(null);
-  const [isSmsNotified, setIsSmsNotified] = useState(false);
 
   useEffect(() => {
-    setUser(dbService.getCurrentUser());
+    const syncUser = () => {
+      const currentUser = dbService.getCurrentUser();
+      setUser(currentUser);
+    };
+    
+    syncUser();
+    window.addEventListener('mycargo-data-updated', syncUser);
+    return () => window.removeEventListener('mycargo-data-updated', syncUser);
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -28,25 +34,27 @@ const BookingForm: React.FC = () => {
     }
 
     const newId = dbService.generateId();
-    const newShipment = {
-      ...formData,
+    const newShipment: Shipment = {
       id: newId,
       userId: user.id,
+      customerName: formData.customerName,
+      phoneNumber: formData.phoneNumber,
+      origin: formData.origin,
+      destination: formData.destination,
+      cargoType: formData.cargoType,
       weight: Number(formData.weight),
       status: CargoStatus.BOOKED,
       eta: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       createdAt: new Date().toISOString()
     };
     
-    dbService.saveShipment(newShipment as any);
+    dbService.saveShipment(newShipment);
     setSuccessId(newId);
-    setIsSmsNotified(true);
     setFormData({ customerName: '', phoneNumber: '', origin: '', destination: '', cargoType: 'Ерөнхий ачаа', weight: '' });
     
     setTimeout(() => {
       setSuccessId(null);
-      setIsSmsNotified(false);
-    }, 10000);
+    }, 8000);
   };
 
   return (
@@ -54,10 +62,10 @@ const BookingForm: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <div className="inline-block px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-xs font-black uppercase tracking-widest mb-4">
-            Админ самбар
+            Оператор хэсэг
           </div>
           <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4">Захиалга Хөтлөх</h2>
-          <p className="text-slate-500 text-lg">Шинэ ачааг бүртгэж, хэрэглэгчийн утсанд мэссэж илгээх.</p>
+          <p className="text-slate-500 text-lg">Шинэ ачааг системд бүртгэж, мэдээллийг баталгаажуулах.</p>
         </div>
 
         {successId ? (
@@ -72,16 +80,9 @@ const BookingForm: React.FC = () => {
             <p className="text-slate-500 mb-2">Хяналтын дугаар:</p>
             <div className="text-5xl font-black text-blue-600 mb-8 font-mono tracking-tighter">{successId}</div>
             
-            <div className="flex flex-col items-center gap-3">
-              <div className="inline-flex items-center gap-3 bg-green-50 text-green-700 px-8 py-4 rounded-2xl text-sm font-bold border border-green-100 animate-bounce">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                </svg>
-                Хэрэглэгчийн утсанд мэссэж илгээгдлээ
-              </div>
-              <button onClick={() => setSuccessId(null)} className="text-sm font-bold text-slate-400 hover:text-blue-600">Дахин нэмэх</button>
-            </div>
+            <button onClick={() => setSuccessId(null)} className="inline-flex items-center gap-2 bg-slate-900 text-white px-8 py-4 rounded-2xl text-sm font-bold hover:bg-blue-600 transition-all">
+              Дахин нэмэх
+            </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="bg-white p-8 md:p-12 rounded-[48px] shadow-2xl border border-slate-100 grid md:grid-cols-2 gap-8 relative overflow-hidden">
@@ -95,11 +96,11 @@ const BookingForm: React.FC = () => {
                   </div>
                   <h4 className="text-2xl font-black text-slate-900 mb-4">Зөвхөн Оператор</h4>
                   <p className="text-slate-500 leading-relaxed mb-8">
-                    Захиалга хөтлөх хэсэг нь зөвхөн эрх бүхий ажилчдад харагдана. Та ачаагаа хянахын тулд доорх товчийг ашиглана уу.
+                    Захиалга хөтлөх хэсэг нь зөвхөн эрх бүхий ажилчдад харагдана. Та Админ эрхээр нэвтэрнэ үү.
                   </p>
-                  <a href="#tracking" className="inline-block bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-blue-100 hover:bg-slate-900 transition-all">
-                    Ачаа хянах хэсэг
-                  </a>
+                  <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="inline-block bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold shadow-xl shadow-blue-100 hover:bg-slate-900 transition-all">
+                    Дээшээ очиж нэвтрэх
+                  </button>
                 </div>
               </div>
             )}
@@ -132,15 +133,15 @@ const BookingForm: React.FC = () => {
 
             <div>
               <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 px-1">Илгээх хот/улс</label>
-              <input required className="w-full px-8 py-5 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all" value={formData.origin} onChange={e => setFormData({...formData, origin: e.target.value})} />
+              <input required className="w-full px-8 py-5 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all" value={formData.origin} onChange={e => setFormData({...formData, origin: e.target.value})} placeholder="Бээжин, Хятад" />
             </div>
             <div>
               <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 px-1">Хүлээн авах хот/улс</label>
-              <input required className="w-full px-8 py-5 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all" value={formData.destination} onChange={e => setFormData({...formData, destination: e.target.value})} />
+              <input required className="w-full px-8 py-5 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all" value={formData.destination} onChange={e => setFormData({...formData, destination: e.target.value})} placeholder="Улаанбаатар, Монгол" />
             </div>
             <div>
               <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 px-1">Ачааны төрөл</label>
-              <select className="w-full px-8 py-5 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all" value={formData.cargoType} onChange={e => setFormData({...formData, cargoType: e.target.value})}>
+              <select className="w-full px-8 py-5 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all font-bold" value={formData.cargoType} onChange={e => setFormData({...formData, cargoType: e.target.value})}>
                 <option>Ерөнхий ачаа</option>
                 <option>Хэврэг ачаа</option>
                 <option>Аюултай ачаа</option>
@@ -149,10 +150,10 @@ const BookingForm: React.FC = () => {
             </div>
             <div>
               <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 px-1">Жин (кг)</label>
-              <input required type="number" className="w-full px-8 py-5 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all" value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} />
+              <input required type="number" className="w-full px-8 py-5 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all" value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} placeholder="0.00" />
             </div>
             <button type="submit" className="md:col-span-2 bg-blue-600 text-white py-6 rounded-[32px] font-black text-xl hover:bg-slate-900 transition-all shadow-2xl shadow-blue-100 mt-6 active:scale-95">
-              Бүртгэл үүсгэх & Мэссэж илгээх
+              Ачааг бүртгэх
             </button>
           </form>
         )}

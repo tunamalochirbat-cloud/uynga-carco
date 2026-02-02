@@ -1,39 +1,33 @@
 
 import { Shipment, ChatMessage, User } from '../types';
 
-const SHIPMENTS_KEY = 'mycargo_shipments_v2';
-const CHAT_KEY = 'mycargo_chat_history_v2';
-const USERS_KEY = 'mycargo_users_v2';
-const CURRENT_USER_KEY = 'mycargo_current_user_v2';
+const SHIPMENTS_KEY = 'mycargo_pro_shipments';
+const CHAT_KEY = 'mycargo_pro_chat';
+const USERS_KEY = 'mycargo_pro_users';
+const CURRENT_USER_KEY = 'mycargo_pro_session';
 
-// Helper to safely interact with LocalStorage
 const storage = {
   get: (key: string) => {
     try {
       const data = localStorage.getItem(key);
       return data ? JSON.parse(data) : null;
     } catch (e) {
-      console.error("Storage read error", e);
       return null;
     }
   },
   set: (key: string, value: any) => {
     try {
       localStorage.setItem(key, JSON.stringify(value));
-      // Trigger a custom event to notify other components of data changes
+      // Notify all components that data has changed
       window.dispatchEvent(new Event('mycargo-data-updated'));
-    } catch (e) {
-      console.error("Storage write error", e);
-    }
+    } catch (e) {}
   }
 };
 
 export const dbService = {
-  // --- Initialization ---
   init: () => {
     const users = storage.get(USERS_KEY);
     if (!users || users.length === 0) {
-      // Seed a default admin account
       const defaultAdmin: User = {
         id: 'admin-001',
         email: 'admin@mycargo.mn',
@@ -45,7 +39,6 @@ export const dbService = {
     }
   },
 
-  // --- User Auth ---
   register: (user: Omit<User, 'id' | 'role'>): User | string => {
     const users = dbService.getAllUsers();
     if (users.find(u => u.email === user.email)) {
@@ -56,8 +49,8 @@ export const dbService = {
       id: Math.random().toString(36).substr(2, 9),
       role: user.email.includes('admin') ? 'admin' : 'user'
     };
-    users.push(newUser);
-    storage.set(USERS_KEY, users);
+    const updatedUsers = [...users, newUser];
+    storage.set(USERS_KEY, updatedUsers);
     return newUser;
   },
 
@@ -83,11 +76,10 @@ export const dbService = {
     return storage.get(USERS_KEY) || [];
   },
 
-  // --- Shipments ---
   saveShipment: (shipment: Shipment): void => {
     const shipments = dbService.getAllShipments();
-    shipments.unshift(shipment);
-    storage.set(SHIPMENTS_KEY, shipments);
+    const updatedShipments = [shipment, ...shipments];
+    storage.set(SHIPMENTS_KEY, updatedShipments);
     dbService.triggerSMSNotification(shipment.phoneNumber, `Амжилттай бүртгэгдлээ. ID: ${shipment.id}`);
   },
 
@@ -129,11 +121,9 @@ export const dbService = {
   },
 
   triggerSMSNotification: (phone: string, message: string) => {
-    console.log(`%c[SMS SENT TO ${phone}]: ${message}`, "background: #2563eb; color: #fff; padding: 4px; border-radius: 4px; font-weight: bold;");
     window.dispatchEvent(new CustomEvent('mycargo-sms', { detail: { phone, message } }));
   },
 
-  // --- Utility ---
   saveChat: (messages: ChatMessage[]): void => {
     storage.set(CHAT_KEY, messages);
   },
@@ -147,5 +137,4 @@ export const dbService = {
   }
 };
 
-// Auto-init on load
 dbService.init();

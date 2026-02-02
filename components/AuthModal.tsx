@@ -15,7 +15,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
   const [name, setName] = useState('');
   const [error, setError] = useState('');
 
-  // Reset error when toggling between login and register
   useEffect(() => {
     setError('');
   }, [isLogin, isOpen]);
@@ -78,13 +77,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
             </button>
           </div>
 
-          {isLogin && (
-            <div className="mb-8 p-4 bg-blue-50 border border-blue-100 rounded-2xl">
-              <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Админ нэвтрэх:</p>
-              <p className="text-xs font-bold text-slate-600">admin@mycargo.mn / admin123</p>
-            </div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
               <div className="animate-in fade-in slide-in-from-top-4 duration-300">
@@ -94,7 +86,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
                   type="text"
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  className="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all"
+                  className="w-full px-6 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-bold"
                   placeholder="Овог Нэр"
                 />
               </div>
