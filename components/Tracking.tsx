@@ -29,6 +29,17 @@ const Tracking: React.FC = () => {
     }, 600);
   };
 
+  const getStatusColor = (status: CargoStatus) => {
+    switch (status) {
+      case CargoStatus.GUANGZHOU: return 'bg-amber-500';
+      case CargoStatus.EREEN: return 'bg-blue-500';
+      case CargoStatus.UB_TERMINAL: return 'bg-indigo-600';
+      case CargoStatus.KANBAN_DELIVERY: return 'bg-purple-600 pulse-blue';
+      case CargoStatus.DELIVERED: return 'bg-green-600';
+      default: return 'bg-slate-500';
+    }
+  };
+
   return (
     <section id="tracking" className="py-24 px-6 bg-white">
       <div className="max-w-4xl mx-auto">
@@ -44,7 +55,7 @@ const Tracking: React.FC = () => {
           <div className="flex bg-white p-1.5 rounded-[24px] mb-8 border border-slate-200">
             <button 
               onClick={() => setSearchType('phone')}
-              className={`flex-1 py-3 rounded-[20px] text-xs font-black transition-all ${searchType === 'phone' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}
+              className={`flex-1 py-3 rounded-[20px] text-xs font-black transition-all ${searchType === 'phone' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-50'}`}
             >Утасны дугаараар</button>
             <button 
               onClick={() => setSearchType('id')}
@@ -58,7 +69,7 @@ const Tracking: React.FC = () => {
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleTrack()}
-              placeholder={searchType === 'phone' ? "8800XXXX" : "MC-XXXXXXX"}
+              placeholder={searchType === 'phone' ? "Утасны дугаар..." : "MC-XXXXXXX"}
               className="flex-1 px-8 py-5 rounded-[28px] text-xl font-black bg-white border-2 border-transparent focus:border-blue-500 outline-none shadow-sm transition-all"
             />
             <button 
@@ -78,7 +89,7 @@ const Tracking: React.FC = () => {
               <div className="flex flex-col md:flex-row gap-10">
                 {/* Product Image and Status */}
                 <div className="md:w-1/3">
-                  <div className="aspect-square rounded-3xl bg-slate-100 overflow-hidden border-4 border-white shadow-xl mb-6">
+                  <div className="aspect-square rounded-3xl bg-slate-100 overflow-hidden border-4 border-white shadow-xl mb-6 relative">
                     {shipment.imageUrl ? (
                       <img src={shipment.imageUrl} alt="Product" className="w-full h-full object-cover" />
                     ) : (
@@ -87,7 +98,7 @@ const Tracking: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  <div className="bg-blue-600 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase text-center tracking-widest shadow-lg shadow-blue-100">
+                  <div className={`text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase text-center tracking-widest shadow-lg ${getStatusColor(shipment.status)}`}>
                     {shipment.status}
                   </div>
                 </div>
@@ -119,20 +130,20 @@ const Tracking: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="bg-blue-50 p-6 rounded-3xl">
+                  <div className="bg-blue-50/50 p-6 rounded-3xl border border-blue-100">
                     <div className="grid grid-cols-2 gap-6">
                       <div>
                         <p className="text-[9px] font-black text-blue-400 uppercase mb-1">Үнийн дүн</p>
                         <p className="text-2xl font-black text-blue-600">{shipment.totalPrice} ₮</p>
                       </div>
                       <div>
-                        <p className="text-[9px] font-black text-blue-400 uppercase mb-1">Байршил</p>
+                        <p className="text-[9px] font-black text-blue-400 uppercase mb-1">Одоогийн байршил</p>
                         <p className="font-black text-slate-900 text-sm">{shipment.currentLocation}</p>
                       </div>
                     </div>
                     <div className="mt-6 pt-6 border-t border-blue-100">
-                      <p className="text-[9px] font-black text-blue-400 uppercase mb-1">Хүргэлтийн хаяг</p>
-                      <p className="font-bold text-slate-900 text-xs">{shipment.homeAddress || 'Салбараас авна'}</p>
+                      <p className="text-[9px] font-black text-blue-400 uppercase mb-1">Гэрийн хаяг</p>
+                      <p className="font-bold text-slate-900 text-xs leading-relaxed">{shipment.homeAddress || 'Салбараас авна'}</p>
                     </div>
                   </div>
                 </div>
@@ -141,7 +152,7 @@ const Tracking: React.FC = () => {
           ))}
           {hasSearched && results.length === 0 && (
             <div className="text-center py-20 bg-slate-50 rounded-[40px] border border-slate-100 text-slate-400 font-bold">
-              Уучлаарай, захиалгын мэдээлэл олдсонгүй.
+              Уучлаарай, захиалгын мэдээлэл олдсонгүй. Утасны дугаараа шалгаад дахин оролдоно уу.
             </div>
           )}
         </div>

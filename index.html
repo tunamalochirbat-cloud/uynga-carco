@@ -1,13 +1,14 @@
+
 <!DOCTYPE html>
 <html lang="mn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyCargo Pro | AI Logistics Platform</title>
+    <title>Uyanga Shop Control | Захиалга Хяналтын Систем</title>
     <script>
-        // Vital shim for process.env which is expected by the @google/genai SDK
+        // Ensure process.env is available for the SDK
         window.process = window.process || { env: {} };
-        // Ensure API_KEY is initialized to prevent ReferenceErrors
+        // The API_KEY will be automatically injected by the environment or hosting provider
         if (!window.process.env.API_KEY) {
             window.process.env.API_KEY = ""; 
         }
@@ -46,6 +47,14 @@
             0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
             70% { box-shadow: 0 0 0 15px rgba(37, 99, 235, 0); }
             100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+        .pulse-red {
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
     </style>
 <script type="importmap">
