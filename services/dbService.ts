@@ -18,7 +18,6 @@ const storage = {
   set: (key: string, value: any) => {
     try {
       localStorage.setItem(key, JSON.stringify(value));
-      // Notify all components that data has changed
       window.dispatchEvent(new Event('mycargo-data-updated'));
     } catch (e) {}
   }
@@ -80,7 +79,7 @@ export const dbService = {
     const shipments = dbService.getAllShipments();
     const updatedShipments = [shipment, ...shipments];
     storage.set(SHIPMENTS_KEY, updatedShipments);
-    dbService.triggerSMSNotification(shipment.phoneNumber, `Амжилттай бүртгэгдлээ. ID: ${shipment.id}`);
+    dbService.triggerSMSNotification(shipment.phoneNumber, `Бүртгэгдлээ. ID: ${shipment.id}`);
   },
 
   getShipment: (id: string): Shipment | undefined => {
@@ -105,13 +104,15 @@ export const dbService = {
     return storage.get(SHIPMENTS_KEY) || [];
   },
 
-  updateShipmentStatus: (id: string, status: Shipment['status']): void => {
+  updateShipment: (id: string, updates: Partial<Shipment>): void => {
     const shipments = dbService.getAllShipments();
     const index = shipments.findIndex(s => s.id === id);
     if (index !== -1) {
-      shipments[index].status = status;
+      shipments[index] = { ...shipments[index], ...updates };
       storage.set(SHIPMENTS_KEY, shipments);
-      dbService.triggerSMSNotification(shipments[index].phoneNumber, `Төлөв: ${status} (ID: ${id})`);
+      if (updates.status || updates.currentLocation) {
+        dbService.triggerSMSNotification(shipments[index].phoneNumber, `Мэдээлэл шинэчлэгдлээ: ${updates.status || shipments[index].status} - ${updates.currentLocation || shipments[index].currentLocation}`);
+      }
     }
   },
 

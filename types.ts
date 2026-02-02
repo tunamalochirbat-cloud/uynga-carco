@@ -12,12 +12,14 @@ export interface Shipment {
   userId: string; 
   origin: string;
   destination: string;
+  currentLocation: string; // New field for real-time location tracking
+  homeAddress: string; // New field for home delivery
   status: 'In Transit' | 'Processing' | 'Delivered' | 'On Hold' | 'Booked';
   eta: string;
   cargoType: string;
   weight: number;
   customerName: string;
-  phoneNumber: string; // New field for phone-based tracking
+  phoneNumber: string;
   createdAt: string;
 }
 
