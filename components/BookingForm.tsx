@@ -12,7 +12,7 @@ const BookingForm: React.FC = () => {
     destination: 'Улаанбаатар (Баянзүрх салбар)',
     homeAddress: '',
     cargoType: '',
-    weight: '',
+    totalPrice: '',
     notes: '',
     paymentDate: new Date().toISOString().split('T')[0],
     confirmationDate: new Date().toISOString().split('T')[0],
@@ -47,7 +47,7 @@ const BookingForm: React.FC = () => {
       currentLocation: 'Guangzhou Warehouse',
       homeAddress: formData.homeAddress,
       cargoType: formData.cargoType || 'Ерөнхий бараа',
-      weight: Number(formData.weight),
+      totalPrice: formData.totalPrice,
       status: CargoStatus.GUANGZHOU,
       eta: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       createdAt: new Date().toISOString(),
@@ -66,7 +66,7 @@ const BookingForm: React.FC = () => {
       destination: 'Улаанбаатар (Баянзүрх салбар)', 
       homeAddress: '',
       cargoType: '', 
-      weight: '',
+      totalPrice: '',
       notes: '',
       paymentDate: new Date().toISOString().split('T')[0],
       confirmationDate: new Date().toISOString().split('T')[0],
@@ -83,13 +83,13 @@ const BookingForm: React.FC = () => {
           <div className="inline-block px-4 py-1.5 bg-blue-100 text-blue-700 rounded-full text-xs font-black uppercase tracking-widest mb-4">
             Оператор хэсэг
           </div>
-          <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 tracking-tighter">Онлайн Захиалгын Бүртгэл</h2>
-          <p className="text-slate-500 text-lg">Шинэ захиалгыг системд цэгцтэй бүртгэнэ үү.</p>
+          <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-4 tracking-tighter text-balance">Онлайн Дэлгүүрийн Захиалга Бүртгэх</h2>
+          <p className="text-slate-500 text-lg">Захиалгын үнийн дүн болон хугацааг нарийн бүртгэнэ үү.</p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-12">
           <div className="lg:col-span-1 space-y-6">
-            <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">Хятад дахь хаяг (Заавар)</h3>
+            <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">Хятад дахь хаяг</h3>
             
             <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100">
               <div className="flex justify-between items-center mb-4">
@@ -115,7 +115,7 @@ const BookingForm: React.FC = () => {
             </div>
 
             <div className="bg-blue-900 text-white p-6 rounded-[32px] shadow-xl">
-              <h4 className="font-black mb-2 uppercase text-xs tracking-widest text-blue-300">Монгол дахь салбар</h4>
+              <h4 className="font-black mb-2 uppercase text-xs tracking-widest text-blue-300">Улаанбаатар салбар</h4>
               <p className="text-sm leading-relaxed">
                 Баянзүрх товчоо, МТ колонкийн замын хойд талд (Вэньчуань логистик)<br/>
                 Утас: 88104240
@@ -131,70 +131,69 @@ const BookingForm: React.FC = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
-                <h3 className="text-3xl font-black text-slate-900 mb-2">Бүртгэл хадгалагдлаа</h3>
-                <p className="text-slate-500 mb-6">Захиалгын дугаар:</p>
-                <div className="text-5xl font-black text-blue-600 mb-10 font-mono">{successId}</div>
-                <button onClick={() => setSuccessId(null)} className="bg-slate-900 text-white px-10 py-5 rounded-2xl font-bold hover:bg-blue-600 transition-all">Дараагийн бүртгэл</button>
+                <h3 className="text-3xl font-black text-slate-900 mb-2">Захиалга бүртгэгдлээ</h3>
+                <div className="text-5xl font-black text-blue-600 mb-10 font-mono tracking-tighter">{successId}</div>
+                <button onClick={() => setSuccessId(null)} className="bg-slate-900 text-white px-10 py-5 rounded-2xl font-bold hover:bg-blue-600 transition-all">Шинэ бүртгэл хийх</button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="bg-white p-8 md:p-12 rounded-[56px] shadow-2xl border border-slate-100 grid md:grid-cols-2 gap-8 relative overflow-hidden">
                 {user?.role !== 'admin' && (
                   <div className="absolute inset-0 z-10 bg-white/95 backdrop-blur-[8px] rounded-[56px] flex items-center justify-center p-12 text-center">
                     <div>
-                      <h4 className="text-2xl font-black text-slate-900 mb-4 uppercase">Админ нэвтрэх шаардлагатай</h4>
+                      <h4 className="text-2xl font-black text-slate-900 mb-4 uppercase">Админ эрхээр нэвтэрнэ үү</h4>
                       <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold shadow-xl">Нэвтрэх</button>
                     </div>
                   </div>
                 )}
                 
                 <div className="md:col-span-2">
-                  <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Хэрэглэгчийн овог нэр</label>
+                  <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Захиалагчийн овог нэр</label>
                   <input required className="w-full px-8 py-5 rounded-[24px] bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all font-bold" value={formData.customerName} onChange={e => setFormData({...formData, customerName: e.target.value})} placeholder="Овог Нэр" />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Утасны дугаар (Монгол)</label>
+                  <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Холбоо барих утас</label>
                   <input required type="tel" className="w-full px-8 py-5 rounded-[24px] bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all font-mono font-black text-lg" value={formData.phoneNumber} onChange={e => setFormData({...formData, phoneNumber: e.target.value})} placeholder="88XXXXXX" />
                 </div>
 
-                {/* Important Dates Section */}
-                <div className="bg-blue-50/50 p-6 rounded-[32px] md:col-span-2 grid md:grid-cols-3 gap-4 border border-blue-100">
+                {/* Date Fields Section */}
+                <div className="bg-slate-50 p-6 rounded-[32px] md:col-span-2 grid md:grid-cols-3 gap-6 border border-slate-100">
                   <div>
-                    <label className="block text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Мөнгө хийсэн огноо</label>
-                    <input type="date" className="w-full px-4 py-3 rounded-xl bg-white border border-blue-100 focus:border-blue-500 outline-none font-bold text-sm" value={formData.paymentDate} onChange={e => setFormData({...formData, paymentDate: e.target.value})} />
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Мөнгө хийсэн</label>
+                    <input type="date" className="w-full px-4 py-4 rounded-xl bg-white border border-slate-100 focus:border-blue-500 outline-none font-bold text-sm" value={formData.paymentDate} onChange={e => setFormData({...formData, paymentDate: e.target.value})} />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Баталгаажсан огноо</label>
-                    <input type="date" className="w-full px-4 py-3 rounded-xl bg-white border border-blue-100 focus:border-blue-500 outline-none font-bold text-sm" value={formData.confirmationDate} onChange={e => setFormData({...formData, confirmationDate: e.target.value})} />
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Баталгаажсан</label>
+                    <input type="date" className="w-full px-4 py-4 rounded-xl bg-white border border-slate-100 focus:border-blue-500 outline-none font-bold text-sm" value={formData.confirmationDate} onChange={e => setFormData({...formData, confirmationDate: e.target.value})} />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Ачаанд өгсөн огноо</label>
-                    <input type="date" className="w-full px-4 py-3 rounded-xl bg-white border border-blue-100 focus:border-blue-500 outline-none font-bold text-sm" value={formData.cargoArrivalDate} onChange={e => setFormData({...formData, cargoArrivalDate: e.target.value})} />
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Ачаанд өгсөн</label>
+                    <input type="date" className="w-full px-4 py-4 rounded-xl bg-white border border-slate-100 focus:border-blue-500 outline-none font-bold text-sm" value={formData.cargoArrivalDate} onChange={e => setFormData({...formData, cargoArrivalDate: e.target.value})} />
                   </div>
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Хүргэлтийн гэрийн хаяг</label>
+                  <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Хүргэлтийн хаяг</label>
                   <textarea className="w-full px-8 py-5 rounded-[24px] bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all font-bold min-h-[100px]" value={formData.homeAddress} onChange={e => setFormData({...formData, homeAddress: e.target.value})} placeholder="Дүүрэг, Хороо, Байр, Тоот..." />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Барааны төрөл</label>
-                  <input required className="w-full px-8 py-5 rounded-[24px] bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all font-bold" value={formData.cargoType} onChange={e => setFormData({...formData, cargoType: e.target.value})} placeholder="Жишээ: Гутал, Цүнх" />
+                  <input required className="w-full px-8 py-5 rounded-[24px] bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all font-bold" value={formData.cargoType} onChange={e => setFormData({...formData, cargoType: e.target.value})} placeholder="Жишээ: Хувцас, Гутал" />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Жин (кг)</label>
-                  <input required type="number" step="0.1" className="w-full px-8 py-5 rounded-[24px] bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all font-bold" value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} placeholder="0.0" />
+                  <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Нийт үнийн дүн (₮ / ¥)</label>
+                  <input required type="text" className="w-full px-8 py-5 rounded-[24px] bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all font-black text-blue-600" value={formData.totalPrice} onChange={e => setFormData({...formData, totalPrice: e.target.value})} placeholder="0.00" />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Тэмдэглэл (Сонголттой)</label>
-                  <input className="w-full px-8 py-5 rounded-[24px] bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all font-medium" value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Жишээ: Хэврэг бараа, яаралтай" />
+                  <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Нэмэлт тэмдэглэл</label>
+                  <input className="w-full px-8 py-5 rounded-[24px] bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all font-medium" value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} placeholder="Жишээ: Яаралтай хүргэлт" />
                 </div>
 
-                <button type="submit" className="md:col-span-2 bg-blue-600 text-white py-6 rounded-[32px] font-black text-xl hover:bg-slate-900 transition-all shadow-2xl shadow-blue-100 mt-6 active:scale-95">
-                  Захиалгыг бүртгэх
+                <button type="submit" className="md:col-span-2 bg-slate-900 text-white py-6 rounded-[32px] font-black text-xl hover:bg-blue-600 transition-all shadow-2xl mt-6 active:scale-95">
+                  Бүртгэл хадгалах
                 </button>
               </form>
             )}

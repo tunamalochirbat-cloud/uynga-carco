@@ -88,7 +88,7 @@ const Tracking: React.FC = () => {
                   <div className={`px-8 py-3 rounded-full text-[11px] font-black uppercase tracking-widest shadow-sm ${
                     shipment.status === CargoStatus.DELIVERED ? 'bg-green-100 text-green-700' : 
                     shipment.status === CargoStatus.KANBAN_DELIVERY ? 'bg-purple-100 text-purple-700' :
-                    'bg-blue-600 text-white'
+                    'bg-blue-600 text-white shadow-xl shadow-blue-100'
                   }`}>
                     {shipment.status}
                   </div>
@@ -96,15 +96,15 @@ const Tracking: React.FC = () => {
 
                 {/* Milestones / Dates Info */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-                  <div className={`p-4 rounded-2xl border ${shipment.paymentDate ? 'bg-green-50 border-green-100' : 'bg-slate-50 border-slate-100'}`}>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Төлбөр хийсэн</p>
+                  <div className={`p-4 rounded-2xl border transition-all ${shipment.paymentDate ? 'bg-green-50 border-green-100' : 'bg-slate-50 border-slate-100'}`}>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Мөнгө хийсэн</p>
                     <p className="font-bold text-slate-900 text-sm">{shipment.paymentDate || 'Хүлээгдэж буй'}</p>
                   </div>
-                  <div className={`p-4 rounded-2xl border ${shipment.confirmationDate ? 'bg-blue-50 border-blue-100' : 'bg-slate-50 border-slate-100'}`}>
+                  <div className={`p-4 rounded-2xl border transition-all ${shipment.confirmationDate ? 'bg-blue-50 border-blue-100' : 'bg-slate-50 border-slate-100'}`}>
                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Баталгаажсан</p>
                     <p className="font-bold text-slate-900 text-sm">{shipment.confirmationDate || 'Хүлээгдэж буй'}</p>
                   </div>
-                  <div className={`p-4 rounded-2xl border ${shipment.cargoArrivalDate ? 'bg-orange-50 border-orange-100' : 'bg-slate-50 border-slate-100'}`}>
+                  <div className={`p-4 rounded-2xl border transition-all ${shipment.cargoArrivalDate ? 'bg-orange-50 border-orange-100' : 'bg-slate-50 border-slate-100'}`}>
                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Ачаанд өгсөн</p>
                     <p className="font-bold text-slate-900 text-sm">{shipment.cargoArrivalDate || 'Хүлээгдэж буй'}</p>
                   </div>
@@ -141,11 +141,11 @@ const Tracking: React.FC = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 bg-slate-50 p-6 rounded-[32px]">
                   <div>
                     <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Одоогийн байршил</p>
-                    <p className="font-bold text-slate-900 text-sm">{shipment.currentLocation}</p>
+                    <p className="font-bold text-slate-900 text-sm uppercase">{shipment.currentLocation}</p>
                   </div>
                   <div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Жин (кг)</p>
-                    <p className="font-bold text-slate-900 text-sm">{shipment.weight} кг</p>
+                    <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Нийт Үнэ</p>
+                    <p className="font-black text-blue-600 text-sm">{shipment.totalPrice || '0.00'}</p>
                   </div>
                   <div>
                     <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Бүртгэсэн</p>
@@ -160,7 +160,7 @@ const Tracking: React.FC = () => {
             ))}
             {hasSearched && results.length === 0 && (
               <div className="text-center py-20 bg-white rounded-[40px] border border-slate-100">
-                <p className="text-slate-400 font-bold">Уучлаарай, мэдээлэл олдсонгүй.</p>
+                <p className="text-slate-400 font-bold">Захиалгын мэдээлэл олдсонгүй.</p>
               </div>
             )}
           </div>

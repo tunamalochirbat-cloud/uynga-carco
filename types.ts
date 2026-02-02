@@ -17,7 +17,7 @@ export interface Shipment {
   status: CargoStatus;
   eta: string;
   cargoType: string;
-  weight: number;
+  totalPrice: string; // New field for total order amount
   customerName: string;
   phoneNumber: string;
   createdAt: string;

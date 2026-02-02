@@ -1,6 +1,6 @@
 {
-  "name": "MyCargo Pro AI",
-  "description": "A high-performance AI-driven logistics and cargo management platform offering real-time tracking, intelligent route optimization, and automated shipping calculations.",
+  "name": "ShopControl Pro",
+  "description": "Онлайн дэлгүүрийн захиалга бүртгэл, төлбөр тооцоо болон хүргэлтийн хяналтын цогц систем.",
   "requestFramePermissions": [
     "microphone"
   ]
