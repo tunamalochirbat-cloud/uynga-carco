@@ -16,18 +16,29 @@ const App: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
 
-  useEffect(() => {
+  const syncUser = () => {
     setUser(dbService.getCurrentUser());
+  };
+
+  useEffect(() => {
+    syncUser();
+    // Listen for storage changes from this or other tabs
+    window.addEventListener('storage', syncUser);
+    window.addEventListener('mycargo-data-updated', syncUser);
+    
+    return () => {
+      window.removeEventListener('storage', syncUser);
+      window.removeEventListener('mycargo-data-updated', syncUser);
+    };
   }, []);
 
   const handleAuthSuccess = () => {
-    setUser(dbService.getCurrentUser());
+    syncUser();
   };
 
   const handleLogout = () => {
     dbService.logout();
     setUser(null);
-    window.location.reload();
   };
 
   return (
@@ -61,7 +72,7 @@ const App: React.FC = () => {
         <section className="py-24 bg-white border-y border-slate-100 overflow-hidden">
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6">Дэлхийг хамарсан сүлжээ</h2>
+              <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tighter uppercase">Дэлхийг хамарсан сүлжээ</h2>
               <p className="text-slate-500 text-lg max-w-2xl mx-auto">Бид Монгол улсаас дэлхийн бүх тив рүү хамгийн оновчтой замаар тээвэрлэлт хийж байна.</p>
             </div>
             <div className="flex flex-wrap justify-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">

@@ -1,12 +1,50 @@
 
 import { Shipment, ChatMessage, User } from '../types';
 
-const SHIPMENTS_KEY = 'mycargo_shipments';
-const CHAT_KEY = 'mycargo_chat_history';
-const USERS_KEY = 'mycargo_users';
-const CURRENT_USER_KEY = 'mycargo_current_user';
+const SHIPMENTS_KEY = 'mycargo_shipments_v2';
+const CHAT_KEY = 'mycargo_chat_history_v2';
+const USERS_KEY = 'mycargo_users_v2';
+const CURRENT_USER_KEY = 'mycargo_current_user_v2';
+
+// Helper to safely interact with LocalStorage
+const storage = {
+  get: (key: string) => {
+    try {
+      const data = localStorage.getItem(key);
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      console.error("Storage read error", e);
+      return null;
+    }
+  },
+  set: (key: string, value: any) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+      // Trigger a custom event to notify other components of data changes
+      window.dispatchEvent(new Event('mycargo-data-updated'));
+    } catch (e) {
+      console.error("Storage write error", e);
+    }
+  }
+};
 
 export const dbService = {
+  // --- Initialization ---
+  init: () => {
+    const users = storage.get(USERS_KEY);
+    if (!users || users.length === 0) {
+      // Seed a default admin account
+      const defaultAdmin: User = {
+        id: 'admin-001',
+        email: 'admin@mycargo.mn',
+        password: 'admin123',
+        name: 'Системийн Админ',
+        role: 'admin'
+      };
+      storage.set(USERS_KEY, [defaultAdmin]);
+    }
+  },
+
   // --- User Auth ---
   register: (user: Omit<User, 'id' | 'role'>): User | string => {
     const users = dbService.getAllUsers();
@@ -19,7 +57,7 @@ export const dbService = {
       role: user.email.includes('admin') ? 'admin' : 'user'
     };
     users.push(newUser);
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    storage.set(USERS_KEY, users);
     return newUser;
   },
 
@@ -27,32 +65,30 @@ export const dbService = {
     const users = dbService.getAllUsers();
     const user = users.find(u => u.email === email && u.password === password);
     if (user) {
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+      storage.set(CURRENT_USER_KEY, user);
     }
     return user;
   },
 
   logout: () => {
     localStorage.removeItem(CURRENT_USER_KEY);
+    window.dispatchEvent(new Event('mycargo-data-updated'));
   },
 
   getCurrentUser: (): User | null => {
-    const data = localStorage.getItem(CURRENT_USER_KEY);
-    return data ? JSON.parse(data) : null;
+    return storage.get(CURRENT_USER_KEY);
   },
 
   getAllUsers: (): User[] => {
-    const data = localStorage.getItem(USERS_KEY);
-    return data ? JSON.parse(data) : [];
+    return storage.get(USERS_KEY) || [];
   },
 
   // --- Shipments ---
   saveShipment: (shipment: Shipment): void => {
     const shipments = dbService.getAllShipments();
     shipments.unshift(shipment);
-    localStorage.setItem(SHIPMENTS_KEY, JSON.stringify(shipments));
-    // SMS Simulation
-    dbService.triggerSMSNotification(shipment.phoneNumber, `Таны ачаа амжилттай бүртгэгдлээ. Дугаар: ${shipment.id}`);
+    storage.set(SHIPMENTS_KEY, shipments);
+    dbService.triggerSMSNotification(shipment.phoneNumber, `Амжилттай бүртгэгдлээ. ID: ${shipment.id}`);
   },
 
   getShipment: (id: string): Shipment | undefined => {
@@ -63,11 +99,8 @@ export const dbService = {
 
   getShipmentsByPhone: (phone: string): Shipment[] => {
     const shipments = dbService.getAllShipments();
-    // Keep only numeric digits for comparison
     const cleanSearchPhone = phone.replace(/\D/g, '');
     if (cleanSearchPhone.length < 8) return [];
-    
-    // Match based on the last 8 digits to handle +976 or other variations
     const last8Digits = cleanSearchPhone.slice(-8);
     
     return shipments.filter(s => {
@@ -76,13 +109,8 @@ export const dbService = {
     });
   },
 
-  getUserShipments: (userId: string): Shipment[] => {
-    return dbService.getAllShipments().filter(s => s.userId === userId);
-  },
-
   getAllShipments: (): Shipment[] => {
-    const data = localStorage.getItem(SHIPMENTS_KEY);
-    return data ? JSON.parse(data) : [];
+    return storage.get(SHIPMENTS_KEY) || [];
   },
 
   updateShipmentStatus: (id: string, status: Shipment['status']): void => {
@@ -90,35 +118,34 @@ export const dbService = {
     const index = shipments.findIndex(s => s.id === id);
     if (index !== -1) {
       shipments[index].status = status;
-      localStorage.setItem(SHIPMENTS_KEY, JSON.stringify(shipments));
-      // Trigger SMS Notification on status update
-      dbService.triggerSMSNotification(shipments[index].phoneNumber, `Мэдэгдэл: Таны ${id} дугаартай ачааны төлөв "${status}" болж шинэчлэгдлээ.`);
+      storage.set(SHIPMENTS_KEY, shipments);
+      dbService.triggerSMSNotification(shipments[index].phoneNumber, `Төлөв: ${status} (ID: ${id})`);
     }
   },
 
   deleteShipment: (id: string): void => {
     const shipments = dbService.getAllShipments().filter(s => s.id !== id);
-    localStorage.setItem(SHIPMENTS_KEY, JSON.stringify(shipments));
+    storage.set(SHIPMENTS_KEY, shipments);
   },
 
-  // --- Visual SMS Trigger (for UI feedback) ---
   triggerSMSNotification: (phone: string, message: string) => {
     console.log(`%c[SMS SENT TO ${phone}]: ${message}`, "background: #2563eb; color: #fff; padding: 4px; border-radius: 4px; font-weight: bold;");
-    // Global notification event
     window.dispatchEvent(new CustomEvent('mycargo-sms', { detail: { phone, message } }));
   },
 
   // --- Utility ---
   saveChat: (messages: ChatMessage[]): void => {
-    localStorage.setItem(CHAT_KEY, JSON.stringify(messages));
+    storage.set(CHAT_KEY, messages);
   },
 
   getChat: (): ChatMessage[] => {
-    const data = localStorage.getItem(CHAT_KEY);
-    return data ? JSON.parse(data) : [];
+    return storage.get(CHAT_KEY) || [];
   },
 
   generateId: (): string => {
     return 'MC-' + Math.random().toString(36).substr(2, 7).toUpperCase();
   }
 };
+
+// Auto-init on load
+dbService.init();

@@ -52,13 +52,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
 
   return (
     <div className="fixed inset-0 z-[110] flex flex-col items-center justify-center overflow-y-auto px-4 py-12 md:p-6">
-      {/* Background Overlay */}
       <div 
         className="fixed inset-0 bg-slate-900/80 backdrop-blur-md transition-opacity duration-300" 
         onClick={onClose}
       ></div>
       
-      {/* Modal Container */}
       <div className="relative bg-white w-full max-w-md rounded-[40px] shadow-2xl overflow-hidden animate-in fade-in zoom-in slide-in-from-bottom-8 duration-300 z-10 my-auto">
         <div className="p-8 md:p-10">
           <div className="flex justify-between items-center mb-10">
@@ -79,6 +77,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
               </svg>
             </button>
           </div>
+
+          {isLogin && (
+            <div className="mb-8 p-4 bg-blue-50 border border-blue-100 rounded-2xl">
+              <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Админ нэвтрэх:</p>
+              <p className="text-xs font-bold text-slate-600">admin@mycargo.mn / admin123</p>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
@@ -120,7 +125,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess }) => 
             </div>
 
             {error && (
-              <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl text-xs font-bold border border-red-100 animate-shake">
+              <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl text-xs font-bold border border-red-100">
                 {error}
               </div>
             )}
