@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { dbService } from '../services/dbService';
-import { CargoStatus } from '../types';
+import { CargoStatus, User } from '../types';
 
 const BookingForm: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
   const [formData, setFormData] = useState({
     customerName: '',
     origin: '',
@@ -13,24 +14,37 @@ const BookingForm: React.FC = () => {
   });
   const [successId, setSuccessId] = useState<string | null>(null);
 
+  useEffect(() => {
+    const currentUser = dbService.getCurrentUser();
+    setUser(currentUser);
+    if (currentUser) {
+      setFormData(prev => ({ ...prev, customerName: currentUser.name }));
+    }
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      alert("Захиалга өгөхийн тулд нэвтэрсэн байх шаардлагатай.");
+      return;
+    }
+
     const newId = dbService.generateId();
     const newShipment = {
       ...formData,
       id: newId,
+      userId: user.id,
       weight: Number(formData.weight),
       status: CargoStatus.BOOKED,
-      eta: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      eta: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       createdAt: new Date().toISOString()
     };
     
     dbService.saveShipment(newShipment as any);
     setSuccessId(newId);
-    setFormData({ customerName: '', origin: '', destination: '', cargoType: 'Ерөнхий ачаа', weight: '' });
+    setFormData({ customerName: user.name, origin: '', destination: '', cargoType: 'Ерөнхий ачаа', weight: '' });
     
-    // Auto-scroll to tracking or show success
-    setTimeout(() => setSuccessId(null), 10000);
+    setTimeout(() => setSuccessId(null), 15000);
   };
 
   return (
@@ -54,7 +68,15 @@ const BookingForm: React.FC = () => {
             <p className="text-sm text-slate-400">Энэ дугаарыг ашиглан "Ачаа хянах" хэсгээс мэдээллээ харна уу.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="bg-white p-8 md:p-12 rounded-[40px] shadow-xl border border-slate-100 grid md:grid-cols-2 gap-6">
+          <form onSubmit={handleSubmit} className="bg-white p-8 md:p-12 rounded-[40px] shadow-xl border border-slate-100 grid md:grid-cols-2 gap-6 relative">
+            {!user && (
+              <div className="absolute inset-0 z-10 bg-white/60 backdrop-blur-[2px] rounded-[40px] flex items-center justify-center p-8 text-center">
+                <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 max-w-xs">
+                  <p className="font-bold text-slate-900 mb-4">Захиалга өгөхийн тулд нэвтэрнэ үү.</p>
+                  <p className="text-sm text-slate-500 mb-6">Бүртгэлтэй болсноор та өөрийн бүх ачааг нэг дороос хянах боломжтой.</p>
+                </div>
+              </div>
+            )}
             <div className="md:col-span-2">
               <label className="block text-sm font-bold text-slate-700 mb-2">Захиалагчийн нэр</label>
               <input 
@@ -109,7 +131,11 @@ const BookingForm: React.FC = () => {
                 placeholder="0"
               />
             </div>
-            <button className="md:col-span-2 bg-blue-600 text-white py-5 rounded-2xl font-bold text-lg hover:bg-slate-900 transition-all shadow-lg mt-4">
+            <button 
+              type="submit"
+              disabled={!user}
+              className="md:col-span-2 bg-blue-600 text-white py-5 rounded-2xl font-bold text-lg hover:bg-slate-900 transition-all shadow-lg mt-4 disabled:opacity-50"
+            >
               Бүртгүүлэх
             </button>
           </form>

@@ -1,7 +1,23 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { dbService } from '../services/dbService';
+import { User } from '../types';
+import AuthModal from './AuthModal';
 
 const Navbar: React.FC = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  useEffect(() => {
+    setUser(dbService.getCurrentUser());
+  }, []);
+
+  const handleLogout = () => {
+    dbService.logout();
+    setUser(null);
+    window.location.reload();
+  };
+
   return (
     <nav className="sticky top-0 z-50 glass-panel border-b border-slate-200 px-6 py-4">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -17,16 +33,45 @@ const Navbar: React.FC = () => {
         <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
           <a href="#" className="hover:text-blue-600 transition-colors">Нүүр</a>
           <a href="#booking" className="hover:text-blue-600 transition-colors">Илгээх</a>
-          <a href="#dashboard" className="hover:text-blue-600 transition-colors">Самбар</a>
+          {user?.role === 'admin' && <a href="#dashboard" className="hover:text-blue-600 transition-colors">Самбар</a>}
           <a href="#tracking" className="hover:text-blue-600 transition-colors">Хянах</a>
           <a href="#calculator" className="hover:text-blue-600 transition-colors">Үнэ</a>
           <a href="#ai" className="hover:text-blue-600 transition-colors">AI Туслах</a>
         </div>
 
-        <button className="bg-slate-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-blue-600 transition-all shadow-lg hover:shadow-blue-200">
-          Нэвтрэх
-        </button>
+        <div className="flex items-center gap-4">
+          {user ? (
+            <div className="flex items-center gap-4">
+              <div className="hidden sm:block text-right">
+                <p className="text-xs font-bold text-slate-400 uppercase">Сайн байна уу?</p>
+                <p className="text-sm font-black text-slate-900">{user.name}</p>
+              </div>
+              <button 
+                onClick={handleLogout}
+                className="bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-red-50 hover:text-red-600 transition-all"
+              >
+                Гарах
+              </button>
+            </div>
+          ) : (
+            <button 
+              onClick={() => setIsAuthModalOpen(true)}
+              className="bg-slate-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-blue-600 transition-all shadow-lg hover:shadow-blue-200"
+            >
+              Нэвтрэх
+            </button>
+          )}
+        </div>
       </div>
+
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={() => {
+          setUser(dbService.getCurrentUser());
+          window.location.reload();
+        }}
+      />
     </nav>
   );
 };
