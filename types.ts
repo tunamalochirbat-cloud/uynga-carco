@@ -12,15 +12,16 @@ export interface Shipment {
   userId: string; 
   origin: string;
   destination: string;
-  currentLocation: string; // New field for real-time location tracking
-  homeAddress: string; // New field for home delivery
-  status: 'In Transit' | 'Processing' | 'Delivered' | 'On Hold' | 'Booked';
+  currentLocation: string;
+  homeAddress: string;
+  status: CargoStatus;
   eta: string;
   cargoType: string;
   weight: number;
   customerName: string;
   phoneNumber: string;
   createdAt: string;
+  notes?: string;
 }
 
 export interface ChatMessage {
@@ -30,9 +31,10 @@ export interface ChatMessage {
 }
 
 export enum CargoStatus {
-  BOOKED = 'Booked',
-  IN_TRANSIT = 'In Transit',
-  PROCESSING = 'Processing',
-  DELIVERED = 'Delivered',
-  ON_HOLD = 'On Hold'
+  GUANGZHOU = 'Гуанжоу агуулах',
+  EREEN = 'Эрээн агуулах',
+  UB_TERMINAL = 'Улаанбаатар ачаан дээр буусан',
+  KANBAN_DELIVERY = 'Гэрээт хүргэлтээр гарсан',
+  DELIVERED = 'Хүргэгдсэн',
+  ON_HOLD = 'Саатсан'
 }
