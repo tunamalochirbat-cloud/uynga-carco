@@ -22,6 +22,10 @@ export interface Shipment {
   phoneNumber: string;
   createdAt: string;
   notes?: string;
+  // Online Shop specific date fields
+  paymentDate?: string;
+  confirmationDate?: string;
+  cargoArrivalDate?: string;
 }
 
 export interface ChatMessage {

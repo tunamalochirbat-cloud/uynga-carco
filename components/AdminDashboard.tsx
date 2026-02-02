@@ -6,7 +6,6 @@ import { Shipment, CargoStatus } from '../types';
 const AdminDashboard: React.FC = () => {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [filter, setFilter] = useState('');
-  const [toast, setToast] = useState<{message: string, visible: boolean}>({ message: '', visible: false });
 
   const loadData = () => setShipments(dbService.getAllShipments());
 
@@ -41,7 +40,7 @@ const AdminDashboard: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-8">
           <div>
             <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-2 tracking-tight uppercase">Удирдлагын хэсэг</h2>
-            <p className="text-slate-500 font-medium italic">Захиалгын төлөвийг алхам тутамд шинэчилнэ үү.</p>
+            <p className="text-slate-500 font-medium italic">Захиалгын төлөв болон огноонуудыг эндээс удирдана.</p>
           </div>
           <input 
             type="text" 
@@ -57,32 +56,41 @@ const AdminDashboard: React.FC = () => {
             <table className="w-full text-left">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="px-8 py-8 text-[11px] font-black text-slate-400 uppercase tracking-widest">Захиалга / ID</th>
-                  <th className="px-8 py-8 text-[11px] font-black text-slate-400 uppercase tracking-widest">Захиалагч</th>
-                  <th className="px-8 py-8 text-[11px] font-black text-slate-400 uppercase tracking-widest">Одоогийн байршил</th>
-                  <th className="px-8 py-8 text-[11px] font-black text-slate-400 uppercase tracking-widest">Процесс</th>
-                  <th className="px-8 py-8 text-[11px] font-black text-slate-400 uppercase tracking-widest">Үйлдэл</th>
+                  <th className="px-6 py-8 text-[11px] font-black text-slate-400 uppercase tracking-widest">ID / Төрөл</th>
+                  <th className="px-6 py-8 text-[11px] font-black text-slate-400 uppercase tracking-widest">Захиалагч</th>
+                  <th className="px-6 py-8 text-[11px] font-black text-slate-400 uppercase tracking-widest">Огноонууд</th>
+                  <th className="px-6 py-8 text-[11px] font-black text-slate-400 uppercase tracking-widest">Төлөв</th>
+                  <th className="px-6 py-8 text-[11px] font-black text-slate-400 uppercase tracking-widest">Үйлдэл</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {filtered.map((s) => (
                   <tr key={s.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-8 py-6">
+                    <td className="px-6 py-6">
                       <div className="font-mono font-black text-blue-600 text-lg">{s.id}</div>
                       <div className="text-[10px] font-bold text-slate-400 uppercase">{s.cargoType}</div>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-6 py-6">
                       <div className="font-bold text-slate-900">{s.customerName}</div>
                       <div className="text-xs font-mono text-slate-400">{s.phoneNumber}</div>
                     </td>
-                    <td className="px-8 py-6">
-                      <input 
-                        className="bg-slate-50 px-4 py-2 rounded-xl text-sm font-bold border border-slate-100 focus:border-blue-500 outline-none w-full"
-                        value={s.currentLocation}
-                        onChange={(e) => updateField(s.id, 'currentLocation', e.target.value)}
-                      />
+                    <td className="px-6 py-6">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] font-bold text-slate-400 w-16 uppercase">Мөнгө:</span>
+                          <input type="date" value={s.paymentDate || ''} onChange={e => updateField(s.id, 'paymentDate', e.target.value)} className="text-[11px] bg-transparent border-none p-0 focus:ring-0 font-bold text-slate-600" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] font-bold text-slate-400 w-16 uppercase">Батал:</span>
+                          <input type="date" value={s.confirmationDate || ''} onChange={e => updateField(s.id, 'confirmationDate', e.target.value)} className="text-[11px] bg-transparent border-none p-0 focus:ring-0 font-bold text-slate-600" />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[9px] font-bold text-slate-400 w-16 uppercase">Ачаанд:</span>
+                          <input type="date" value={s.cargoArrivalDate || ''} onChange={e => updateField(s.id, 'cargoArrivalDate', e.target.value)} className="text-[11px] bg-transparent border-none p-0 focus:ring-0 font-bold text-slate-600" />
+                        </div>
+                      </div>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-6 py-6">
                       <select 
                         value={s.status}
                         onChange={(e) => updateField(s.id, 'status', e.target.value)}
@@ -93,7 +101,7 @@ const AdminDashboard: React.FC = () => {
                         ))}
                       </select>
                     </td>
-                    <td className="px-8 py-6">
+                    <td className="px-6 py-6">
                       <button onClick={() => deleteItem(s.id)} className="text-slate-300 hover:text-red-500 p-2 transition-colors">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

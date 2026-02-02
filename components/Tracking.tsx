@@ -43,7 +43,7 @@ const Tracking: React.FC = () => {
             Хяналтын хэсэг
           </div>
           <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 tracking-tighter">Захиалга Хянах</h2>
-          <p className="text-slate-500 text-lg max-w-2xl mx-auto">Та өөрийн бүртгүүлсэн утасны дугаар эсвэл захиалгын дугаараар хянана уу.</p>
+          <p className="text-slate-500 text-lg max-w-2xl mx-auto">Төлбөр баталгаажсан болон ачааны явцыг эндээс шалгана уу.</p>
         </div>
 
         <div className="max-w-4xl mx-auto bg-slate-50 p-6 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl">
@@ -73,7 +73,7 @@ const Tracking: React.FC = () => {
               disabled={isLoading}
               className="bg-slate-900 text-white px-16 py-6 rounded-[32px] font-black text-xl hover:bg-blue-600 transition-all shadow-2xl h-fit md:mt-[94px] active:scale-95 disabled:opacity-50"
             >
-              {isLoading ? 'Хайж байна...' : 'Хайх'}
+              Хайх
             </button>
           </div>
 
@@ -91,6 +91,22 @@ const Tracking: React.FC = () => {
                     'bg-blue-600 text-white'
                   }`}>
                     {shipment.status}
+                  </div>
+                </div>
+
+                {/* Milestones / Dates Info */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+                  <div className={`p-4 rounded-2xl border ${shipment.paymentDate ? 'bg-green-50 border-green-100' : 'bg-slate-50 border-slate-100'}`}>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Төлбөр хийсэн</p>
+                    <p className="font-bold text-slate-900 text-sm">{shipment.paymentDate || 'Хүлээгдэж буй'}</p>
+                  </div>
+                  <div className={`p-4 rounded-2xl border ${shipment.confirmationDate ? 'bg-blue-50 border-blue-100' : 'bg-slate-50 border-slate-100'}`}>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Баталгаажсан</p>
+                    <p className="font-bold text-slate-900 text-sm">{shipment.confirmationDate || 'Хүлээгдэж буй'}</p>
+                  </div>
+                  <div className={`p-4 rounded-2xl border ${shipment.cargoArrivalDate ? 'bg-orange-50 border-orange-100' : 'bg-slate-50 border-slate-100'}`}>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Ачаанд өгсөн</p>
+                    <p className="font-bold text-slate-900 text-sm">{shipment.cargoArrivalDate || 'Хүлээгдэж буй'}</p>
                   </div>
                 </div>
 

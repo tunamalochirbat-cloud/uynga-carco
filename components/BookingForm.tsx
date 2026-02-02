@@ -13,7 +13,10 @@ const BookingForm: React.FC = () => {
     homeAddress: '',
     cargoType: '',
     weight: '',
-    notes: ''
+    notes: '',
+    paymentDate: new Date().toISOString().split('T')[0],
+    confirmationDate: new Date().toISOString().split('T')[0],
+    cargoArrivalDate: ''
   });
   const [successId, setSuccessId] = useState<string | null>(null);
 
@@ -48,7 +51,10 @@ const BookingForm: React.FC = () => {
       status: CargoStatus.GUANGZHOU,
       eta: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       createdAt: new Date().toISOString(),
-      notes: formData.notes
+      notes: formData.notes,
+      paymentDate: formData.paymentDate,
+      confirmationDate: formData.confirmationDate,
+      cargoArrivalDate: formData.cargoArrivalDate
     };
     
     dbService.saveShipment(newShipment);
@@ -61,7 +67,10 @@ const BookingForm: React.FC = () => {
       homeAddress: '',
       cargoType: '', 
       weight: '',
-      notes: ''
+      notes: '',
+      paymentDate: new Date().toISOString().split('T')[0],
+      confirmationDate: new Date().toISOString().split('T')[0],
+      cargoArrivalDate: ''
     });
     
     setTimeout(() => setSuccessId(null), 15000);
@@ -79,7 +88,6 @@ const BookingForm: React.FC = () => {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-12">
-          {/* Warehouse Addresses for Quick Sharing */}
           <div className="lg:col-span-1 space-y-6">
             <h3 className="text-xl font-black text-slate-900 mb-6 uppercase tracking-tight">Хятад дахь хаяг (Заавар)</h3>
             
@@ -115,7 +123,6 @@ const BookingForm: React.FC = () => {
             </div>
           </div>
 
-          {/* Registration Form */}
           <div className="lg:col-span-2">
             {successId ? (
               <div className="bg-white border-4 border-blue-600/10 p-12 rounded-[56px] text-center animate-in fade-in zoom-in duration-500 shadow-2xl">
@@ -148,6 +155,22 @@ const BookingForm: React.FC = () => {
                 <div className="md:col-span-2">
                   <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3">Утасны дугаар (Монгол)</label>
                   <input required type="tel" className="w-full px-8 py-5 rounded-[24px] bg-slate-50 border-2 border-slate-50 focus:border-blue-500 focus:bg-white outline-none transition-all font-mono font-black text-lg" value={formData.phoneNumber} onChange={e => setFormData({...formData, phoneNumber: e.target.value})} placeholder="88XXXXXX" />
+                </div>
+
+                {/* Important Dates Section */}
+                <div className="bg-blue-50/50 p-6 rounded-[32px] md:col-span-2 grid md:grid-cols-3 gap-4 border border-blue-100">
+                  <div>
+                    <label className="block text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Мөнгө хийсэн огноо</label>
+                    <input type="date" className="w-full px-4 py-3 rounded-xl bg-white border border-blue-100 focus:border-blue-500 outline-none font-bold text-sm" value={formData.paymentDate} onChange={e => setFormData({...formData, paymentDate: e.target.value})} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Баталгаажсан огноо</label>
+                    <input type="date" className="w-full px-4 py-3 rounded-xl bg-white border border-blue-100 focus:border-blue-500 outline-none font-bold text-sm" value={formData.confirmationDate} onChange={e => setFormData({...formData, confirmationDate: e.target.value})} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Ачаанд өгсөн огноо</label>
+                    <input type="date" className="w-full px-4 py-3 rounded-xl bg-white border border-blue-100 focus:border-blue-500 outline-none font-bold text-sm" value={formData.cargoArrivalDate} onChange={e => setFormData({...formData, cargoArrivalDate: e.target.value})} />
+                  </div>
                 </div>
 
                 <div className="md:col-span-2">
