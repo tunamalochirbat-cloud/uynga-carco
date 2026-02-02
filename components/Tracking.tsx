@@ -4,112 +4,193 @@ import { dbService } from '../services/dbService';
 import { Shipment } from '../types';
 
 const Tracking: React.FC = () => {
-  const [trackId, setTrackId] = useState('');
-  const [shipment, setShipment] = useState<Shipment | null>(null);
+  const [searchValue, setSearchValue] = useState('');
+  const [searchType, setSearchType] = useState<'id' | 'phone'>('phone');
+  const [results, setResults] = useState<Shipment[]>([]);
   const [error, setError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const handleTrack = () => {
-    setError(false);
-    const result = dbService.getShipment(trackId);
-    if (result) {
-      setShipment(result);
-    } else {
-      setShipment(null);
+    if (!searchValue.trim()) {
       setError(true);
+      return;
     }
+
+    setIsLoading(true);
+    setError(false);
+    setHasSearched(false); // Reset results view until search completes
+
+    // Simulate network delay for better UX
+    setTimeout(() => {
+      let found: Shipment[] = [];
+
+      if (searchType === 'id') {
+        const res = dbService.getShipment(searchValue);
+        if (res) found = [res];
+      } else {
+        found = dbService.getShipmentsByPhone(searchValue);
+      }
+
+      setResults(found);
+      setIsLoading(false);
+      setHasSearched(true);
+      if (found.length === 0) {
+        setError(true);
+      }
+    }, 600);
+  };
+
+  const handleInputChange = (val: string) => {
+    setSearchValue(val);
+    if (error) setError(false); // Clear error while typing
+  };
+
+  const switchType = (type: 'id' | 'phone') => {
+    setSearchType(type);
+    setSearchValue('');
+    setResults([]);
+    setError(false);
+    setHasSearched(false);
   };
 
   return (
-    <section id="tracking" className="py-24 px-6">
+    <section id="tracking" className="py-24 px-6 bg-white">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-[40px] shadow-xl overflow-hidden border border-slate-100">
-          <div className="grid lg:grid-cols-5">
-            <div className="lg:col-span-2 p-12 bg-slate-50 border-r border-slate-100">
-              <h2 className="text-3xl font-extrabold mb-6">Ачаа хянах</h2>
-              <p className="text-slate-600 mb-8">Хяналтын дугаараа оруулан ачааныхаа байршлыг бодит цаг хугацаанд харна уу.</p>
-              <div className="space-y-4">
-                <input 
-                  type="text" 
-                  value={trackId}
-                  onChange={(e) => setTrackId(e.target.value)}
-                  placeholder="Жишээ: MC-XXXXXXX"
-                  className={`w-full px-6 py-4 rounded-2xl border ${error ? 'border-red-500 ring-2 ring-red-100' : 'border-slate-200'} focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
-                />
-                {error && <p className="text-red-500 text-xs font-bold px-2">Уучлаарай, ийм дугаартай ачаа олдсонгүй.</p>}
+        <div className="text-center mb-16">
+          <div className="inline-block px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-xs font-black uppercase tracking-widest mb-4">
+            Хэрэглэгчийн хэсэг
+          </div>
+          <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">Ачаа Хянах</h2>
+          <p className="text-slate-500 text-lg max-w-2xl mx-auto">Бүртгүүлсэн утасны дугаараа ашиглан бүх ачааны явцаа нэг дороос хараарай.</p>
+        </div>
+
+        <div className="max-w-4xl mx-auto bg-slate-50 p-6 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl">
+          <div className="flex flex-col md:flex-row gap-6 mb-12">
+            <div className="flex-1">
+              <div className="flex bg-white p-1.5 rounded-2xl mb-6 border border-slate-200 shadow-sm">
                 <button 
-                  onClick={handleTrack}
-                  className="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-blue-600 transition-all shadow-lg"
+                  onClick={() => switchType('phone')}
+                  className={`flex-1 py-4 rounded-xl text-sm font-bold transition-all ${searchType === 'phone' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-50'}`}
                 >
-                  Хянах
+                  Утасны дугаараар
+                </button>
+                <button 
+                  onClick={() => switchType('id')}
+                  className={`flex-1 py-4 rounded-xl text-sm font-bold transition-all ${searchType === 'id' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-50'}`}
+                >
+                  Хяналтын дугаараар
                 </button>
               </div>
-            </div>
-            
-            <div className="lg:col-span-3 p-12 flex items-center justify-center min-h-[400px]">
-              {shipment ? (
-                <div className="w-full space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Ачааны мэдээлэл</h3>
-                      <p className="text-2xl font-extrabold text-slate-900">{shipment.id}</p>
-                    </div>
-                    <span className="bg-blue-100 text-blue-700 px-4 py-1.5 rounded-full text-xs font-bold uppercase">
-                      {shipment.status}
-                    </span>
+              <div className="relative">
+                <input 
+                  type="text" 
+                  value={searchValue}
+                  onChange={(e) => handleInputChange(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleTrack()}
+                  placeholder={searchType === 'phone' ? "Жишээ: 88XXXXXX" : "Жишээ: MC-XXXXXXX"}
+                  className={`w-full px-8 py-6 rounded-[32px] text-xl font-bold border-4 transition-all duration-300 ${
+                    error && hasSearched && results.length === 0 
+                    ? 'border-red-100 ring-4 ring-red-50' 
+                    : 'border-white focus:border-blue-500'
+                  } bg-white shadow-lg outline-none`}
+                />
+                {searchType === 'phone' && (
+                  <span className="absolute left-8 -top-3 px-2 bg-white text-[10px] font-black text-blue-600 uppercase tracking-widest border border-blue-100 rounded z-10">
+                    Утасны дугаар
+                  </span>
+                )}
+                {isLoading && (
+                  <div className="absolute right-6 top-1/2 -translate-y-1/2">
+                    <div className="w-6 h-6 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin"></div>
                   </div>
-                  
-                  <div className="relative pt-4">
-                    <div className="absolute top-1/2 left-0 w-full h-1.5 bg-slate-100 -translate-y-1/2 rounded-full"></div>
-                    <div 
-                      className="absolute top-1/2 left-0 h-1.5 bg-blue-600 -translate-y-1/2 rounded-full transition-all duration-1000"
-                      style={{ width: shipment.status === 'Booked' ? '5%' : shipment.status === 'Processing' ? '30%' : shipment.status === 'In Transit' ? '65%' : '100%' }}
-                    ></div>
-                    <div className="flex justify-between relative z-10">
-                      <div className={`w-5 h-5 rounded-full border-4 border-white shadow-md ${shipment.status === 'Booked' ? 'bg-blue-600 scale-125' : 'bg-blue-600'}`}></div>
-                      <div className={`w-5 h-5 rounded-full border-4 border-white shadow-md ${shipment.status === 'Processing' ? 'bg-blue-600 scale-125' : shipment.status === 'Booked' ? 'bg-slate-200' : 'bg-blue-600'}`}></div>
-                      <div className={`w-5 h-5 rounded-full border-4 border-white shadow-md ${shipment.status === 'In Transit' ? 'bg-blue-600 scale-125' : (shipment.status === 'Booked' || shipment.status === 'Processing') ? 'bg-slate-200' : 'bg-blue-600'}`}></div>
-                      <div className={`w-5 h-5 rounded-full border-4 border-white shadow-md ${shipment.status === 'Delivered' ? 'bg-blue-600 scale-125' : 'bg-slate-200'}`}></div>
-                    </div>
-                    <div className="flex justify-between mt-4 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                      <span>Захиалсан</span>
-                      <span>Боловсруулж буй</span>
-                      <span>Тээвэрт</span>
-                      <span>Хүрсэн</span>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-8 pt-4">
-                    <div>
-                      <p className="text-xs font-bold text-slate-400 uppercase mb-1">Илгээгч</p>
-                      <p className="font-bold text-slate-900">{shipment.customerName}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-slate-400 uppercase mb-1">Маршрут</p>
-                      <p className="font-bold text-slate-900">{shipment.origin} ➔ {shipment.destination}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-slate-400 uppercase mb-1">Ирэх хугацаа (ETA)</p>
-                      <p className="font-bold text-slate-900">{shipment.eta}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-slate-400 uppercase mb-1">Жин / Төрөл</p>
-                      <p className="font-bold text-slate-900">{shipment.weight}кг / {shipment.cargoType}</p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center text-slate-400">
-                  <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg className="w-12 h-12 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                  <p className="font-medium text-lg">Хяналтын дугаараа оруулан мэдээлэл харна уу</p>
-                  <p className="text-sm mt-2">Хэрэв танд дугаар байхгүй бол "Ачаа илгээх" хэсгээс шинээр үүсгэнэ үү.</p>
-                </div>
+                )}
+              </div>
+              {error && !searchValue.trim() && (
+                <p className="text-red-500 text-xs font-bold mt-3 ml-4 animate-in fade-in slide-in-from-top-1">Утга оруулна уу.</p>
               )}
             </div>
+            <button 
+              onClick={handleTrack}
+              disabled={isLoading}
+              className="bg-slate-900 text-white px-16 py-6 rounded-[32px] font-black text-xl hover:bg-blue-600 transition-all shadow-2xl hover:-translate-y-1 h-fit md:mt-[94px] active:scale-95 disabled:opacity-50 disabled:translate-y-0"
+            >
+              Хайх
+            </button>
+          </div>
+
+          <div className="space-y-8 min-h-[100px]">
+            {isLoading ? (
+              <div className="flex flex-col items-center py-20 animate-pulse">
+                <div className="w-16 h-16 bg-blue-50 rounded-full mb-4"></div>
+                <div className="h-4 w-48 bg-slate-200 rounded-full mb-2"></div>
+                <div className="h-3 w-32 bg-slate-100 rounded-full"></div>
+              </div>
+            ) : results.length > 0 ? (
+              <div className="grid gap-6">
+                {results.map((shipment) => (
+                  <div key={shipment.id} className="bg-white p-8 rounded-[40px] shadow-sm border border-slate-100 animate-in fade-in slide-in-from-bottom-8 duration-500 group hover:shadow-xl transition-all">
+                    <div className="flex flex-wrap justify-between items-start gap-4 mb-10">
+                      <div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-[10px] font-black bg-blue-600 text-white px-3 py-1 rounded-full uppercase tracking-[0.2em] shadow-lg shadow-blue-100">Ачааны ID</span>
+                          <p className="font-mono font-black text-slate-900 text-2xl tracking-tighter">{shipment.id}</p>
+                        </div>
+                        <p className="text-sm font-bold text-slate-400 ml-1 uppercase tracking-wider">{shipment.customerName} • {shipment.phoneNumber}</p>
+                      </div>
+                      <div className={`px-8 py-3 rounded-full text-[11px] font-black uppercase tracking-[0.2em] shadow-sm ${
+                        shipment.status === 'Delivered' ? 'bg-green-100 text-green-700' : 
+                        shipment.status === 'In Transit' ? 'bg-blue-600 text-white shadow-xl shadow-blue-100' : 'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {shipment.status === 'Booked' ? 'Бүртгэгдсэн' : 
+                         shipment.status === 'Processing' ? 'Боловсруулж буй' :
+                         shipment.status === 'In Transit' ? 'Тээвэрлэлтэд' :
+                         shipment.status === 'Delivered' ? 'Хүргэгдсэн' : 'Саатсан'}
+                      </div>
+                    </div>
+
+                    <div className="relative h-3 bg-slate-50 rounded-full mb-12 shadow-inner border border-slate-100">
+                      <div 
+                        className="absolute top-0 left-0 h-full bg-blue-600 rounded-full transition-all duration-[1.5s] ease-out shadow-[0_0_20px_rgba(37,99,235,0.5)]"
+                        style={{ width: shipment.status === 'Booked' ? '15%' : shipment.status === 'Processing' ? '40%' : shipment.status === 'In Transit' ? '75%' : '100%' }}
+                      ></div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Маршрут</p>
+                        <p className="font-bold text-slate-900 text-sm">{shipment.origin} ➔ {shipment.destination}</p>
+                      </div>
+                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Жин / Төрөл</p>
+                        <p className="font-bold text-slate-900 text-sm">{shipment.weight}кг / {shipment.cargoType}</p>
+                      </div>
+                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Ирэх хугацаа</p>
+                        <p className="font-bold text-slate-900 text-sm">{shipment.eta}</p>
+                      </div>
+                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Огноо</p>
+                        <p className="font-bold text-slate-900 text-sm">{new Date(shipment.createdAt).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : hasSearched ? (
+              <div className="text-center py-24 bg-white rounded-[48px] border-4 border-dashed border-slate-100 animate-in fade-in duration-500">
+                <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+                  <svg className="w-12 h-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 mb-2">Мэдээлэл олдсонгүй</h3>
+                <p className="text-slate-500 font-medium px-6">
+                  "{searchValue}" утгаар ачаа олдсонгүй. <br className="hidden sm:block" />
+                  Та оруулсан дугаараа дахин шалгана уу.
+                </p>
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

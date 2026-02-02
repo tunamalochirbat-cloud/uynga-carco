@@ -1,23 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
-import { dbService } from '../services/dbService';
+import React from 'react';
 import { User } from '../types';
-import AuthModal from './AuthModal';
 
-const Navbar: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+interface NavbarProps {
+  user: User | null;
+  onAuthClick: () => void;
+  onLogout: () => void;
+}
 
-  useEffect(() => {
-    setUser(dbService.getCurrentUser());
-  }, []);
-
-  const handleLogout = () => {
-    dbService.logout();
-    setUser(null);
-    window.location.reload();
-  };
-
+const Navbar: React.FC<NavbarProps> = ({ user, onAuthClick, onLogout }) => {
   return (
     <nav className="sticky top-0 z-50 glass-panel border-b border-slate-200 px-6 py-4">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -47,7 +38,7 @@ const Navbar: React.FC = () => {
                 <p className="text-sm font-black text-slate-900">{user.name}</p>
               </div>
               <button 
-                onClick={handleLogout}
+                onClick={onLogout}
                 className="bg-slate-100 text-slate-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-red-50 hover:text-red-600 transition-all"
               >
                 Гарах
@@ -55,7 +46,7 @@ const Navbar: React.FC = () => {
             </div>
           ) : (
             <button 
-              onClick={() => setIsAuthModalOpen(true)}
+              onClick={onAuthClick}
               className="bg-slate-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-blue-600 transition-all shadow-lg hover:shadow-blue-200"
             >
               Нэвтрэх
@@ -63,15 +54,6 @@ const Navbar: React.FC = () => {
           )}
         </div>
       </div>
-
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={() => {
-          setUser(dbService.getCurrentUser());
-          window.location.reload();
-        }}
-      />
     </nav>
   );
 };

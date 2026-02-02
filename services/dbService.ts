@@ -51,11 +51,29 @@ export const dbService = {
     const shipments = dbService.getAllShipments();
     shipments.unshift(shipment);
     localStorage.setItem(SHIPMENTS_KEY, JSON.stringify(shipments));
+    // SMS Simulation
+    dbService.triggerSMSNotification(shipment.phoneNumber, `Таны ачаа амжилттай бүртгэгдлээ. Дугаар: ${shipment.id}`);
   },
 
   getShipment: (id: string): Shipment | undefined => {
     const shipments = dbService.getAllShipments();
-    return shipments.find(s => s.id.toLowerCase() === id.toLowerCase());
+    const cleanId = id.trim().toLowerCase();
+    return shipments.find(s => s.id.toLowerCase() === cleanId);
+  },
+
+  getShipmentsByPhone: (phone: string): Shipment[] => {
+    const shipments = dbService.getAllShipments();
+    // Keep only numeric digits for comparison
+    const cleanSearchPhone = phone.replace(/\D/g, '');
+    if (cleanSearchPhone.length < 8) return [];
+    
+    // Match based on the last 8 digits to handle +976 or other variations
+    const last8Digits = cleanSearchPhone.slice(-8);
+    
+    return shipments.filter(s => {
+      const cleanShipmentPhone = s.phoneNumber.replace(/\D/g, '');
+      return cleanShipmentPhone.endsWith(last8Digits);
+    });
   },
 
   getUserShipments: (userId: string): Shipment[] => {
@@ -73,12 +91,21 @@ export const dbService = {
     if (index !== -1) {
       shipments[index].status = status;
       localStorage.setItem(SHIPMENTS_KEY, JSON.stringify(shipments));
+      // Trigger SMS Notification on status update
+      dbService.triggerSMSNotification(shipments[index].phoneNumber, `Мэдэгдэл: Таны ${id} дугаартай ачааны төлөв "${status}" болж шинэчлэгдлээ.`);
     }
   },
 
   deleteShipment: (id: string): void => {
     const shipments = dbService.getAllShipments().filter(s => s.id !== id);
     localStorage.setItem(SHIPMENTS_KEY, JSON.stringify(shipments));
+  },
+
+  // --- Visual SMS Trigger (for UI feedback) ---
+  triggerSMSNotification: (phone: string, message: string) => {
+    console.log(`%c[SMS SENT TO ${phone}]: ${message}`, "background: #2563eb; color: #fff; padding: 4px; border-radius: 4px; font-weight: bold;");
+    // Global notification event
+    window.dispatchEvent(new CustomEvent('mycargo-sms', { detail: { phone, message } }));
   },
 
   // --- Utility ---

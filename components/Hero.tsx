@@ -1,7 +1,11 @@
 
 import React from 'react';
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  onStartClick: () => void;
+}
+
+const Hero: React.FC<HeroProps> = ({ onStartClick }) => {
   return (
     <section className="relative pt-20 pb-32 px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
@@ -22,12 +26,15 @@ const Hero: React.FC = () => {
             Дэлхийн өнцөг булан бүрт ачаагаа хамгийн хурдан, найдвартай бөгөөд хямд зардлаар хүргэхэд MyCargo Pro тусална.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <button className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-200">
+            <button 
+              onClick={onStartClick}
+              className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-blue-700 transition-all shadow-xl shadow-blue-200"
+            >
               Одоо эхлэх
             </button>
-            <button className="bg-white text-slate-900 border border-slate-200 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-slate-50 transition-all">
+            <a href="#calculator" className="bg-white text-slate-900 border border-slate-200 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-slate-50 transition-all text-center">
               Үнийн санал авах
-            </button>
+            </a>
           </div>
         </div>
         
@@ -38,7 +45,7 @@ const Hero: React.FC = () => {
             alt="Cargo Ship" 
             className="rounded-[40px] shadow-2xl animate-float border-8 border-white"
           />
-          <div className="absolute -bottom-10 -left-10 glass-panel p-6 rounded-3xl shadow-xl max-w-xs animate-bounce-slow">
+          <div className="absolute -bottom-10 -left-10 glass-panel p-6 rounded-3xl shadow-xl max-w-xs">
             <div className="flex gap-4 items-center">
               <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

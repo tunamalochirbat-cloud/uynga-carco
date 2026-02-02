@@ -9,7 +9,7 @@ export interface User {
 
 export interface Shipment {
   id: string;
-  userId: string; // Link shipment to a specific user
+  userId: string; 
   origin: string;
   destination: string;
   status: 'In Transit' | 'Processing' | 'Delivered' | 'On Hold' | 'Booked';
@@ -17,6 +17,7 @@ export interface Shipment {
   cargoType: string;
   weight: number;
   customerName: string;
+  phoneNumber: string; // New field for phone-based tracking
   createdAt: string;
 }
 

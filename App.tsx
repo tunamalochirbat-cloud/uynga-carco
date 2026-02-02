@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Tracking from './components/Tracking';
@@ -8,13 +8,37 @@ import PricingCalculator from './components/PricingCalculator';
 import BookingForm from './components/BookingForm';
 import AdminDashboard from './components/AdminDashboard';
 import LiveAssistant from './components/LiveAssistant';
+import AuthModal from './components/AuthModal';
+import { dbService } from './services/dbService';
+import { User } from './types';
 
 const App: React.FC = () => {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    setUser(dbService.getCurrentUser());
+  }, []);
+
+  const handleAuthSuccess = () => {
+    setUser(dbService.getCurrentUser());
+  };
+
+  const handleLogout = () => {
+    dbService.logout();
+    setUser(null);
+    window.location.reload();
+  };
+
   return (
     <div className="min-h-screen selection:bg-blue-600 selection:text-white">
-      <Navbar />
+      <Navbar 
+        user={user} 
+        onAuthClick={() => setIsAuthModalOpen(true)} 
+        onLogout={handleLogout} 
+      />
       <main>
-        <Hero />
+        <Hero onStartClick={() => !user && setIsAuthModalOpen(true)} />
         
         {/* Features Section */}
         <div className="max-w-7xl mx-auto px-6 mb-24">
@@ -33,7 +57,7 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Global Reach Section (New Addition) */}
+        {/* Global Reach Section */}
         <section className="py-24 bg-white border-y border-slate-100 overflow-hidden">
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
@@ -41,7 +65,6 @@ const App: React.FC = () => {
               <p className="text-slate-500 text-lg max-w-2xl mx-auto">Бид Монгол улсаас дэлхийн бүх тив рүү хамгийн оновчтой замаар тээвэрлэлт хийж байна.</p>
             </div>
             <div className="flex flex-wrap justify-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-              {/* Mock Logo Icons representing partners/ports */}
               <div className="flex items-center gap-2 font-bold text-xl"><span className="text-blue-600">●</span> GLOBAL PORT</div>
               <div className="flex items-center gap-2 font-bold text-xl"><span className="text-blue-600">●</span> SKY LOGISTICS</div>
               <div className="flex items-center gap-2 font-bold text-xl"><span className="text-blue-600">●</span> OCEAN CARGO</div>
@@ -51,13 +74,19 @@ const App: React.FC = () => {
         </section>
 
         <BookingForm />
-        <AdminDashboard />
+        {user?.role === 'admin' && <AdminDashboard />}
         <Tracking />
         <PricingCalculator />
         <AIChat />
       </main>
 
       <LiveAssistant />
+
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={handleAuthSuccess}
+      />
 
       <footer className="bg-slate-950 text-white pt-24 pb-12 px-6">
         <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-16">
