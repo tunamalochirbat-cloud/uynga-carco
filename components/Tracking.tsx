@@ -7,17 +7,12 @@ const Tracking: React.FC = () => {
   const [searchValue, setSearchValue] = useState('');
   const [searchType, setSearchType] = useState<'id' | 'phone'>('phone');
   const [results, setResults] = useState<Shipment[]>([]);
-  const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
   const handleTrack = () => {
-    if (!searchValue.trim()) {
-      setError(true);
-      return;
-    }
+    if (!searchValue.trim()) return;
     setIsLoading(true);
-    setError(false);
     setHasSearched(false);
 
     setTimeout(() => {
@@ -31,139 +26,124 @@ const Tracking: React.FC = () => {
       setResults(found);
       setIsLoading(false);
       setHasSearched(true);
-      if (found.length === 0) setError(true);
-    }, 800);
+    }, 600);
   };
 
   return (
     <section id="tracking" className="py-24 px-6 bg-white">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <div className="inline-block px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-xs font-black uppercase tracking-widest mb-4">
-            Хяналтын хэсэг
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-12">
+          <div className="inline-block px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest mb-4">
+            ХЯНАЛТЫН ХЭСЭГ
           </div>
-          <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 tracking-tighter">Захиалга Хянах</h2>
-          <p className="text-slate-500 text-lg max-w-2xl mx-auto">Төлбөр баталгаажсан болон ачааны явцыг эндээс шалгана уу.</p>
+          <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter mb-4">Захиалга Хянах</h2>
+          <p className="text-slate-500 font-medium">Төлбөр баталгаажсан болон ачааны явцыг эндээс шалгана уу.</p>
         </div>
 
-        <div className="max-w-4xl mx-auto bg-slate-50 p-6 md:p-12 rounded-[48px] border border-slate-100 shadow-2xl">
-          <div className="flex flex-col md:flex-row gap-6 mb-12">
-            <div className="flex-1">
-              <div className="flex bg-white p-1.5 rounded-[24px] mb-6 border border-slate-200 shadow-sm">
-                <button 
-                  onClick={() => setSearchType('phone')}
-                  className={`flex-1 py-4 rounded-[20px] text-sm font-black transition-all ${searchType === 'phone' ? 'bg-blue-600 text-white shadow-xl' : 'text-slate-500 hover:bg-slate-50'}`}
-                >Утасны дугаараар</button>
-                <button 
-                  onClick={() => setSearchType('id')}
-                  className={`flex-1 py-4 rounded-[20px] text-sm font-black transition-all ${searchType === 'id' ? 'bg-blue-600 text-white shadow-xl' : 'text-slate-500 hover:bg-slate-50'}`}
-                >Захиалгын дугаараар</button>
-              </div>
-              <input 
-                type="text" 
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleTrack()}
-                placeholder={searchType === 'phone' ? "88XXXXXX" : "MC-XXXXXXX"}
-                className="w-full px-8 py-6 rounded-[32px] text-xl font-black border-4 border-white focus:border-blue-500 bg-white shadow-lg outline-none transition-all"
-              />
-            </div>
+        <div className="bg-slate-50 p-6 md:p-10 rounded-[48px] border border-slate-100 shadow-xl mb-12">
+          <div className="flex bg-white p-1.5 rounded-[24px] mb-8 border border-slate-200">
             <button 
-              onClick={handleTrack}
-              disabled={isLoading}
-              className="bg-slate-900 text-white px-16 py-6 rounded-[32px] font-black text-xl hover:bg-blue-600 transition-all shadow-2xl h-fit md:mt-[94px] active:scale-95 disabled:opacity-50"
-            >
-              Хайх
-            </button>
+              onClick={() => setSearchType('phone')}
+              className={`flex-1 py-3 rounded-[20px] text-xs font-black transition-all ${searchType === 'phone' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}
+            >Утасны дугаараар</button>
+            <button 
+              onClick={() => setSearchType('id')}
+              className={`flex-1 py-3 rounded-[20px] text-xs font-black transition-all ${searchType === 'id' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500'}`}
+            >Захиалгын дугаараар</button>
           </div>
 
-          <div className="space-y-8">
-            {results.map((shipment) => (
-              <div key={shipment.id} className="bg-white p-8 md:p-10 rounded-[40px] shadow-sm border border-slate-100 animate-in fade-in slide-in-from-bottom-8 duration-500">
-                <div className="flex flex-wrap justify-between items-start gap-6 mb-10">
-                  <div>
-                    <p className="font-mono font-black text-blue-600 text-3xl mb-1 tracking-tighter">{shipment.id}</p>
-                    <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">{shipment.customerName} • {shipment.cargoType}</p>
+          <div className="flex flex-col md:flex-row gap-4">
+            <input 
+              type="text" 
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleTrack()}
+              placeholder={searchType === 'phone' ? "8800XXXX" : "MC-XXXXXXX"}
+              className="flex-1 px-8 py-5 rounded-[28px] text-xl font-black bg-white border-2 border-transparent focus:border-blue-500 outline-none shadow-sm transition-all"
+            />
+            <button 
+              onClick={handleTrack}
+              className="bg-slate-900 text-white px-12 py-5 rounded-[28px] font-black text-lg hover:bg-blue-600 transition-all active:scale-95"
+            >
+              {isLoading ? 'Хайж байна...' : 'Хайх'}
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-8">
+          {results.map((shipment) => (
+            <div key={shipment.id} className="bg-white p-8 md:p-10 rounded-[40px] shadow-sm border border-slate-100 animate-in fade-in slide-in-from-bottom-4 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-[100px] -z-10 opacity-50"></div>
+              
+              <div className="flex flex-col md:flex-row gap-10">
+                {/* Product Image and Status */}
+                <div className="md:w-1/3">
+                  <div className="aspect-square rounded-3xl bg-slate-100 overflow-hidden border-4 border-white shadow-xl mb-6">
+                    {shipment.imageUrl ? (
+                      <img src={shipment.imageUrl} alt="Product" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-300">
+                        <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      </div>
+                    )}
                   </div>
-                  <div className={`px-8 py-3 rounded-full text-[11px] font-black uppercase tracking-widest shadow-sm ${
-                    shipment.status === CargoStatus.DELIVERED ? 'bg-green-100 text-green-700' : 
-                    shipment.status === CargoStatus.KANBAN_DELIVERY ? 'bg-purple-100 text-purple-700' :
-                    'bg-blue-600 text-white shadow-xl shadow-blue-100'
-                  }`}>
+                  <div className="bg-blue-600 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase text-center tracking-widest shadow-lg shadow-blue-100">
                     {shipment.status}
                   </div>
                 </div>
 
-                {/* Milestones / Dates Info */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-                  <div className={`p-4 rounded-2xl border transition-all ${shipment.paymentDate ? 'bg-green-50 border-green-100' : 'bg-slate-50 border-slate-100'}`}>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Мөнгө хийсэн</p>
-                    <p className="font-bold text-slate-900 text-sm">{shipment.paymentDate || 'Хүлээгдэж буй'}</p>
+                {/* Details */}
+                <div className="flex-1">
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <h4 className="text-3xl font-black text-blue-600 font-mono tracking-tighter">{shipment.id}</h4>
+                      <p className="text-sm font-bold text-slate-400 mt-1 uppercase">{shipment.customerName} • {shipment.cargoType}</p>
+                    </div>
+                    <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
+                      <img 
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=${encodeURIComponent(shipment.id)}`} 
+                        alt="QR" 
+                        className="w-12 h-12"
+                      />
+                    </div>
                   </div>
-                  <div className={`p-4 rounded-2xl border transition-all ${shipment.confirmationDate ? 'bg-blue-50 border-blue-100' : 'bg-slate-50 border-slate-100'}`}>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Баталгаажсан</p>
-                    <p className="font-bold text-slate-900 text-sm">{shipment.confirmationDate || 'Хүлээгдэж буй'}</p>
-                  </div>
-                  <div className={`p-4 rounded-2xl border transition-all ${shipment.cargoArrivalDate ? 'bg-orange-50 border-orange-100' : 'bg-slate-50 border-slate-100'}`}>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Ачаанд өгсөн</p>
-                    <p className="font-bold text-slate-900 text-sm">{shipment.cargoArrivalDate || 'Хүлээгдэж буй'}</p>
-                  </div>
-                </div>
 
-                {/* Progress Visual */}
-                <div className="relative mb-12 px-2">
-                  <div className="absolute top-1/2 left-0 w-full h-1 bg-slate-100 -translate-y-1/2 rounded-full"></div>
-                  <div className="relative flex justify-between items-center">
-                    {[CargoStatus.GUANGZHOU, CargoStatus.EREEN, CargoStatus.UB_TERMINAL, CargoStatus.DELIVERED].map((st, i) => {
-                      const stages = [CargoStatus.GUANGZHOU, CargoStatus.EREEN, CargoStatus.UB_TERMINAL, CargoStatus.KANBAN_DELIVERY, CargoStatus.DELIVERED];
-                      const currentIdx = stages.indexOf(shipment.status);
-                      const stageIdx = stages.indexOf(st);
-                      const isCompleted = stageIdx <= currentIdx && shipment.status !== CargoStatus.ON_HOLD;
-                      
-                      return (
-                        <div key={i} className="flex flex-col items-center z-10">
-                          <div className={`w-10 h-10 rounded-full border-4 flex items-center justify-center transition-all ${
-                            isCompleted ? 'bg-blue-600 border-white text-white shadow-lg' : 'bg-white border-slate-100 text-slate-300'
-                          }`}>
-                            {isCompleted ? (
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"/></svg>
-                            ) : <span className="text-xs font-bold">{i+1}</span>}
-                          </div>
-                          <p className={`mt-3 text-[9px] font-black uppercase tracking-tighter text-center max-w-[80px] ${isCompleted ? 'text-blue-600' : 'text-slate-400'}`}>
-                            {st === CargoStatus.GUANGZHOU ? 'Гуанжоу' : st === CargoStatus.EREEN ? 'Эрээн' : st === CargoStatus.UB_TERMINAL ? 'Улаанбаатар' : 'Хүргэгдсэн'}
-                          </p>
-                        </div>
-                      );
-                    })}
+                  <div className="grid grid-cols-2 gap-4 mb-8">
+                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                      <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Төлбөр хийсэн</p>
+                      <p className="font-bold text-slate-900">{shipment.paymentDate || '-'}</p>
+                    </div>
+                    <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                      <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Баталгаажсан</p>
+                      <p className="font-bold text-slate-900">{shipment.confirmationDate || '-'}</p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 bg-slate-50 p-6 rounded-[32px]">
-                  <div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Одоогийн байршил</p>
-                    <p className="font-bold text-slate-900 text-sm uppercase">{shipment.currentLocation}</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Нийт Үнэ</p>
-                    <p className="font-black text-blue-600 text-sm">{shipment.totalPrice || '0.00'}</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Бүртгэсэн</p>
-                    <p className="font-bold text-slate-900 text-sm">{new Date(shipment.createdAt).toLocaleDateString()}</p>
-                  </div>
-                  <div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase mb-1">Хүргэлт</p>
-                    <p className="font-bold text-slate-900 text-[10px] leading-tight">{shipment.homeAddress || 'Салбараас авах'}</p>
+                  <div className="bg-blue-50 p-6 rounded-3xl">
+                    <div className="grid grid-cols-2 gap-6">
+                      <div>
+                        <p className="text-[9px] font-black text-blue-400 uppercase mb-1">Үнийн дүн</p>
+                        <p className="text-2xl font-black text-blue-600">{shipment.totalPrice} ₮</p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-blue-400 uppercase mb-1">Байршил</p>
+                        <p className="font-black text-slate-900 text-sm">{shipment.currentLocation}</p>
+                      </div>
+                    </div>
+                    <div className="mt-6 pt-6 border-t border-blue-100">
+                      <p className="text-[9px] font-black text-blue-400 uppercase mb-1">Хүргэлтийн хаяг</p>
+                      <p className="font-bold text-slate-900 text-xs">{shipment.homeAddress || 'Салбараас авна'}</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            ))}
-            {hasSearched && results.length === 0 && (
-              <div className="text-center py-20 bg-white rounded-[40px] border border-slate-100">
-                <p className="text-slate-400 font-bold">Захиалгын мэдээлэл олдсонгүй.</p>
-              </div>
-            )}
-          </div>
+            </div>
+          ))}
+          {hasSearched && results.length === 0 && (
+            <div className="text-center py-20 bg-slate-50 rounded-[40px] border border-slate-100 text-slate-400 font-bold">
+              Уучлаарай, захиалгын мэдээлэл олдсонгүй.
+            </div>
+          )}
         </div>
       </div>
     </section>

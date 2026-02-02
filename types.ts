@@ -17,15 +17,15 @@ export interface Shipment {
   status: CargoStatus;
   eta: string;
   cargoType: string;
-  totalPrice: string; // New field for total order amount
+  totalPrice: string; 
   customerName: string;
   phoneNumber: string;
   createdAt: string;
   notes?: string;
-  // Online Shop specific date fields
   paymentDate?: string;
   confirmationDate?: string;
   cargoArrivalDate?: string;
+  imageUrl?: string; // Product photo
 }
 
 export interface ChatMessage {
@@ -35,10 +35,10 @@ export interface ChatMessage {
 }
 
 export enum CargoStatus {
-  GUANGZHOU = 'Гуанжоу агуулах',
-  EREEN = 'Эрээн агуулах',
+  GUANGZHOU = 'Гуанжоу агуулахад ирсэн',
+  EREEN = 'Эрээн агуулахад ирсэн',
   UB_TERMINAL = 'Улаанбаатар ачаан дээр буусан',
-  KANBAN_DELIVERY = 'Гэрээт хүргэлтээр гарсан',
+  KANBAN_DELIVERY = 'Гэрээт хүргэлтээр гаргаж байна',
   DELIVERED = 'Хүргэгдсэн',
   ON_HOLD = 'Саатсан'
 }
