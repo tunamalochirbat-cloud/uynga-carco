@@ -17,6 +17,7 @@ const Navbar: React.FC = () => {
         <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
           <a href="#" className="hover:text-blue-600 transition-colors">Нүүр</a>
           <a href="#booking" className="hover:text-blue-600 transition-colors">Илгээх</a>
+          <a href="#dashboard" className="hover:text-blue-600 transition-colors">Самбар</a>
           <a href="#tracking" className="hover:text-blue-600 transition-colors">Хянах</a>
           <a href="#calculator" className="hover:text-blue-600 transition-colors">Үнэ</a>
           <a href="#ai" className="hover:text-blue-600 transition-colors">AI Туслах</a>

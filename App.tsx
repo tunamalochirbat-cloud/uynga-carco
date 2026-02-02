@@ -6,6 +6,7 @@ import Tracking from './components/Tracking';
 import AIChat from './components/AIChat';
 import PricingCalculator from './components/PricingCalculator';
 import BookingForm from './components/BookingForm';
+import AdminDashboard from './components/AdminDashboard';
 
 const App: React.FC = () => {
   return (
@@ -31,6 +32,7 @@ const App: React.FC = () => {
         </div>
 
         <BookingForm />
+        <AdminDashboard />
         <Tracking />
         <PricingCalculator />
         <AIChat />
@@ -56,7 +58,7 @@ const App: React.FC = () => {
             <ul className="space-y-4 text-slate-400 text-sm">
               <li><a href="#" className="hover:text-blue-500 transition-colors">Бидний тухай</a></li>
               <li><a href="#booking" className="hover:text-blue-500 transition-colors">Ачаа илгээх</a></li>
-              <li><a href="#tracking" className="hover:text-blue-500 transition-colors">Хяналт</a></li>
+              <li><a href="#dashboard" className="hover:text-blue-500 transition-colors">Хяналтын самбар</a></li>
               <li><a href="#ai" className="hover:text-blue-500 transition-colors">AI Туслах</a></li>
             </ul>
           </div>
