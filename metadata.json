@@ -1,5 +1,7 @@
 {
   "name": "MyCargo Pro AI",
   "description": "A high-performance AI-driven logistics and cargo management platform offering real-time tracking, intelligent route optimization, and automated shipping calculations.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "microphone"
+  ]
 }

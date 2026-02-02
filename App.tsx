@@ -7,10 +7,11 @@ import AIChat from './components/AIChat';
 import PricingCalculator from './components/PricingCalculator';
 import BookingForm from './components/BookingForm';
 import AdminDashboard from './components/AdminDashboard';
+import LiveAssistant from './components/LiveAssistant';
 
 const App: React.FC = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen selection:bg-blue-600 selection:text-white">
       <Navbar />
       <main>
         <Hero />
@@ -22,7 +23,7 @@ const App: React.FC = () => {
               { title: 'Далайн тээвэр', icon: '🚢', desc: 'Их хэмжээний ачаанд хамгийн хэмнэлттэй.' },
               { title: 'Газрын тээвэр', icon: '🚛', desc: 'Бүс нутгийн доторх уян хатан шийдэл.' }
             ].map((feature, i) => (
-              <div key={i} className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-xl transition-shadow group">
+              <div key={i} className="bg-white p-10 rounded-[32px] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-2">
                 <div className="text-4xl mb-6 group-hover:scale-110 transition-transform">{feature.icon}</div>
                 <h3 className="text-xl font-bold mb-4">{feature.title}</h3>
                 <p className="text-slate-500 leading-relaxed">{feature.desc}</p>
@@ -38,6 +39,8 @@ const App: React.FC = () => {
         <AIChat />
       </main>
 
+      <LiveAssistant />
+
       <footer className="bg-slate-950 text-white py-20 px-6">
         <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12">
           <div className="col-span-2">
@@ -47,9 +50,9 @@ const App: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                 </svg>
               </div>
-              <span className="text-xl font-extrabold">MyCargo Pro</span>
+              <span className="text-xl font-extrabold tracking-tight">MyCargo <span className="text-blue-500">Pro</span></span>
             </div>
-            <p className="text-slate-400 max-w-sm">
+            <p className="text-slate-400 max-w-sm leading-relaxed">
               Логистикийн салбарт хувьсгал хийж, технологийн тусламжтайгаар дэлхийг холбоно.
             </p>
           </div>
