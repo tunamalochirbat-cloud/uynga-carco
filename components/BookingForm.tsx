@@ -5,6 +5,7 @@ import { CargoStatus, User, Shipment } from '../types';
 
 const BookingForm: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
   const [formData, setFormData] = useState({
     customerName: '',
     phoneNumber: '',
@@ -28,14 +29,55 @@ const BookingForm: React.FC = () => {
     return () => window.removeEventListener('mycargo-data-updated', syncUser);
   }, []);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 500;
+          const MAX_HEIGHT = 500;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          // Compress quality to 0.7 to save space
+          resolve(canvas.toDataURL('image/jpeg', 0.7));
+        };
+      };
+    });
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, imageUrl: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      setIsCompressing(true);
+      try {
+        const compressedBase64 = await compressImage(file);
+        setFormData({ ...formData, imageUrl: compressedBase64 });
+      } catch (err) {
+        console.error("Image compression failed", err);
+      } finally {
+        setIsCompressing(false);
+      }
     }
   };
 
@@ -120,9 +162,6 @@ const BookingForm: React.FC = () => {
                 <p className="text-sm font-bold text-slate-200 leading-relaxed">
                   Захиалагчийн <span className="text-white underline underline-offset-4 decoration-blue-500">НЭР</span> болон <span className="text-white underline underline-offset-4 decoration-blue-500">УТАСНЫ ДУГААР</span>-ыг заавал бичнэ үү.
                 </p>
-                <p className="text-[10px] text-slate-500 mt-4 italic">
-                  * Код бичих шаардлагагүй, зөвхөн нэр утас хангалттай.
-                </p>
               </div>
             </div>
 
@@ -141,14 +180,6 @@ const BookingForm: React.FC = () => {
                     手机号: 134 2224 4242
                   </p>
                   <button onClick={() => copyToClipboard('广东省广州市荔湾区站前路96号蒙古物流')} className="text-[10px] bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-slate-600 font-bold hover:bg-slate-100 transition-all">Хуулж авах</button>
-                </div>
-
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                  <p className="text-[9px] font-black text-blue-600 uppercase mb-2">УБ Салбар (Хүлээлгэн өгөх)</p>
-                  <p className="text-xs font-bold text-slate-700 leading-relaxed">
-                    Баян зүрхийн товчоо МТ колонкийн замын хойд талд<br/>
-                    Холбоо барих: 88104240
-                  </p>
                 </div>
               </div>
             </div>
@@ -202,44 +233,36 @@ const BookingForm: React.FC = () => {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-[11px] font-black text-blue-600 uppercase tracking-widest mb-2 px-1">Гэрийн хаяг (Заавал биш боловч байвал сайн)</label>
-                    <input className="w-full px-6 py-4 rounded-2xl bg-blue-50/30 border-2 border-blue-50 focus:border-blue-500 outline-none transition-all font-bold" value={formData.homeAddress} onChange={e => setFormData({...formData, homeAddress: e.target.value})} placeholder="Дүүрэг, хороо, байр, тоот..." />
-                  </div>
-
-                  <div className="md:col-span-2 bg-blue-50/50 p-6 rounded-3xl border border-blue-100 grid md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-[10px] font-black text-blue-600 mb-2">Төлбөр хийсэн</label>
-                      <input type="date" className="w-full px-4 py-2 rounded-xl text-sm font-bold border-none" value={formData.paymentDate} onChange={e => setFormData({...formData, paymentDate: e.target.value})} />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-black text-blue-600 mb-2">Баталгаажсан</label>
-                      <input type="date" className="w-full px-4 py-2 rounded-xl text-sm font-bold border-none" value={formData.confirmationDate} onChange={e => setFormData({...formData, confirmationDate: e.target.value})} />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-black text-blue-600 mb-2">Ачаанд өгсөн</label>
-                      <input type="date" className="w-full px-4 py-2 rounded-xl text-sm font-bold border-none" value={formData.cargoArrivalDate} onChange={e => setFormData({...formData, cargoArrivalDate: e.target.value})} />
-                    </div>
-                  </div>
-
-                  <div className="md:col-span-2">
                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Барааны зураг</label>
                     <div className="flex gap-4 items-center">
                       <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" id="product-image" />
                       <label htmlFor="product-image" className="cursor-pointer bg-slate-100 px-6 py-4 rounded-2xl border-2 border-dashed border-slate-300 text-slate-500 text-xs font-bold hover:bg-slate-200 transition-all flex items-center gap-2">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                        Зураг сонгох
+                        {isCompressing ? (
+                          <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        )}
+                        {formData.imageUrl ? 'Зураг солих' : 'Зураг сонгох'}
                       </label>
                       {formData.imageUrl && (
-                        <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-blue-500 shadow-lg group relative">
+                        <div className="w-24 h-24 rounded-2xl overflow-hidden border-4 border-white shadow-2xl group relative animate-in zoom-in duration-300">
                           <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                          <button 
+                            type="button"
+                            onClick={() => setFormData({...formData, imageUrl: ''})}
+                            className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M6 18L18 6M6 6l12 12" /></svg>
+                          </button>
                         </div>
                       )}
                     </div>
+                    <p className="text-[9px] text-slate-400 mt-2 font-bold uppercase tracking-wider">* Зургийн хэмжээг систем автоматаар оновчилж хадгална.</p>
                   </div>
 
                   <div className="md:col-span-2">
                     <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Барааны дэлгэрэнгүй мэдээлэл</label>
-                    <textarea className="w-full px-6 py-4 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-blue-500 outline-none transition-all font-bold min-h-[100px]" value={formData.cargoType} onChange={e => setFormData({...formData, cargoType: e.target.value})} placeholder="Барааны нэр, төрөл, тоо ширхэг..." />
+                    <textarea required className="w-full px-6 py-4 rounded-2xl bg-slate-50 border-2 border-slate-50 focus:border-blue-500 outline-none transition-all font-bold min-h-[100px]" value={formData.cargoType} onChange={e => setFormData({...formData, cargoType: e.target.value})} placeholder="Барааны нэр, төрөл, тоо ширхэг..." />
                   </div>
                 </div>
 
